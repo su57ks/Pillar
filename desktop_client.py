@@ -2,7 +2,11 @@ import pygame
 import sys
 
 pygame.init()
-screen = pygame.display.set_mode((1000, 1000))
+info = pygame.display.Info()
+screen_width = info.current_w
+screen_height = info.current_h
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
+pygame.display.set_caption("TrueGram")
 font = pygame.font.SysFont(None, 36)
 
 class Button():
@@ -87,18 +91,20 @@ class Modal():
         text_rect = self.text.get_rect(center=self.position.center)
         screen.blit(self.text, text_rect)
 
-settings = Button((0, 0, 100), (0, 160, 00), (0, 0, 200, 100), font, "Настройки")
+current_chat = "dev"
 
-input = TextInput((0, 160, 00), (200, 900, 800, 100), font)
+settings = Button((0, 0, 100), (0, 160, 00), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
 
-name = TextField((0, 0, 0), (200, 0, 800, 200), font, "su57ks")
+input = TextInput((0, 160, 00), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 5 * 3, screen_height // 10), font)
 
-chats_list = TextField((0, 0, 0), (0, 100, 200, 100), font, "Список чатов")
+name = TextField((0, 0, 0), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10 * 2), font, current_chat)
+
+chats_list = TextField((0, 0, 0), (0, screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, "Список чатов")
 
 chats = []
 
-for i in range(8):
-    chats.append(Button((0, 0, 0), (100, 100, 100), (0, 200 + i * 100, 200, 100), font, f"Чат {i}"))
+for i in range(1, 9):
+    chats.append(Button((0, 0, 0), (100, 100, 100), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
 
 running = True
 modal_showing = False
@@ -110,13 +116,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     screen.fill((30, 30, 30))
-        
-    settings.update(events)
-    if settings.clicked:
-        print("Кнопка настроек нажата!")
-        modal_showing = True
-        modal = Modal((100, 100, 100), (300, 300, 200, 100), font, "нету")
-    settings.draw(screen)
 
     if modal_showing == True:
         modal.update(events)
@@ -129,11 +128,18 @@ while running:
     for i in range(8):
         chats[i].update(events)
         if chats[i].clicked:
-            name.text = f"Чат {i}"
+            name.text = f"Чат {i + 1}"
+            current_chat = f"Чат {i + 1}"
         chats[i].draw(screen)
     name.draw(screen)
     input.update(events)
     input.draw(screen)
+    settings.update(events)
+    if settings.clicked:
+        print("Кнопка настроек нажата!")
+        modal_showing = True
+        modal = Modal((100, 100, 100), (1000, 1000, 200, 100), font, "нету")
+    settings.draw(screen)
 
     pygame.display.flip()
 
