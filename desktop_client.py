@@ -101,6 +101,8 @@ chats_list = TextField((25, 25, 35), (0, screen_height // 10, screen_width // 5 
 
 send = Button((55, 55, 65), (75, 75, 85), (screen_width // 10 * 9, screen_height // 10 * 9, screen_width // 10, screen_height // 10), font, "»")
 
+close = Button((70, 130, 180), (255, 0, 0), (screen_width - 30, 0, 30, 30), font, "X")
+
 chats = []
 
 for i in range(1, 9):
@@ -142,6 +144,10 @@ while running:
     settings.draw(screen)
     send.update(events)
     send.draw(screen)
+    close.update(events)
+    if close.clicked:
+        running = False
+    close.draw(screen)
 
     pygame.display.flip()
 
