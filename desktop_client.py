@@ -17,7 +17,6 @@ class Button():
         self.click_color = pClick_color
         self.position = pygame.Rect(pPosition)
         self.current_color = self.standart_color
-
         self.clicked = False
 
     def update(self, events):
@@ -77,7 +76,6 @@ class Modal():
         self.position = pygame.Rect(pPosition)
         self.text = self.font.render(pText, True, (255, 255, 255))
         self.showed = True
-
         self.close = Button((70, 130, 180), (255, 0, 0), (pPosition[0] + pPosition[2] - 30, pPosition[1], 30, 30), self.font, "X")
 
     def update(self, events):
@@ -93,18 +91,20 @@ class Modal():
 
 current_chat = "dev"
 
-settings = Button((0, 0, 100), (0, 160, 00), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
+settings = Button((40, 40, 50), (60, 60, 70), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
 
-input = TextInput((0, 160, 00), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 5 * 3, screen_height // 10), font)
+input = TextInput((30, 30, 40), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 10 * 5, screen_height // 10), font)
 
-name = TextField((0, 0, 0), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10 * 2), font, current_chat)
+name = TextField((25, 25, 35), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10 * 2), font, current_chat)
 
-chats_list = TextField((0, 0, 0), (0, screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, "Список чатов")
+chats_list = TextField((25, 25, 35), (0, screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, "Список чатов")
+
+send = Button((55, 55, 65), (75, 75, 85), (screen_width // 10 * 9, screen_height // 10 * 9, screen_width // 10, screen_height // 10), font, "»")
 
 chats = []
 
 for i in range(1, 9):
-    chats.append(Button((0, 0, 0), (100, 100, 100), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
+    chats.append(Button((35, 35, 45), (55, 55, 65), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
 
 running = True
 modal_showing = False
@@ -115,7 +115,7 @@ while running:
     for event in events:
         if event.type == pygame.QUIT:
             running = False
-    screen.fill((30, 30, 30))
+    screen.fill((20, 20, 25))
 
     if modal_showing == True:
         modal.update(events)
@@ -138,8 +138,10 @@ while running:
     if settings.clicked:
         modal_showing = not modal_showing
     if modal_showing:
-            modal = Modal((100, 100, 100), (screen_width // 2 - 100, screen_height // 2 - 50, 200, 100), font, "нету")
+            modal = Modal((45, 45, 55), (screen_width // 2 - 100, screen_height // 2 - 50, 200, 100), font, "нету")
     settings.draw(screen)
+    send.update(events)
+    send.draw(screen)
 
     pygame.display.flip()
 
