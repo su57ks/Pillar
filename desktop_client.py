@@ -6,7 +6,7 @@ screen = pygame.display.set_mode((1000, 1000))
 font = pygame.font.SysFont(None, 36)
 
 class Button():
-    def __init__(self, pText, pStandart_color, pClick_color, pPosition, pFont):
+    def __init__(self, pStandart_color, pClick_color, pPosition, pFont, pText):
         self.font = pFont
         self.text = self.font.render(pText, True, (255, 255, 255))
         self.standart_color = pStandart_color
@@ -58,12 +58,13 @@ class TextField():
         self.font = pFont
         self.color = pColor
         self.position = pygame.Rect(pPosition)
-        self.text = self.font.render(pText, True, (255, 255, 255))
+        self.text = pText
 
     def draw(self, screen):
+        text = self.font.render(self.text, True, (255, 255, 255))
         pygame.draw.rect(screen, self.color, self.position, border_radius=8)
-        text_rect = self.text.get_rect(center=self.position.center)
-        screen.blit(self.text, text_rect)
+        text_rect = text.get_rect(center=self.position.center)
+        screen.blit(text, text_rect)
           
 class Modal():
     def __init__(self, pColor, pPosition, pFont, pText):
@@ -73,7 +74,7 @@ class Modal():
         self.text = self.font.render(pText, True, (255, 255, 255))
         self.showed = True
 
-        self.close = Button("X", (70, 130, 180), (255, 0, 0), (pPosition[1] + pPosition[2] - 30, pPosition[0], 30, 30), self.font)
+        self.close = Button((70, 130, 180), (255, 0, 0), (pPosition[1] + pPosition[2] - 30, pPosition[0], 30, 30), self.font, "X")
 
     def update(self, events):
         self.close.update(events)
@@ -86,7 +87,7 @@ class Modal():
         text_rect = self.text.get_rect(center=self.position.center)
         screen.blit(self.text, text_rect)
 
-settings = Button("Настройки", (0, 0, 100), (0, 160, 00), (0, 0, 200, 100), font)
+settings = Button((0, 0, 100), (0, 160, 00), (0, 0, 200, 100), font, "Настройки")
 
 input = TextInput((0, 160, 00), (200, 900, 800, 100), font)
 
@@ -97,7 +98,7 @@ chats_list = TextField((0, 0, 0), (0, 100, 200, 100), font, "Список чат
 chats = []
 
 for i in range(8):
-    chats.append(TextField((0, 0, 0), (0, 200 + i * 100, 200, 100), font, f"Чат {i}"))
+    chats.append(Button((0, 0, 0), (100, 100, 100), (0, 200 + i * 100, 200, 100), font, f"Чат {i}"))
 
 running = True
 modal_showing = False
@@ -126,6 +127,9 @@ while running:
             modal = None
     chats_list.draw(screen)
     for i in range(8):
+        chats[i].update(events)
+        if chats[i].clicked:
+            name.text = f"Чат {i}"
         chats[i].draw(screen)
     name.draw(screen)
     input.update(events)
