@@ -40,11 +40,18 @@ class TextInput():
         self.font = pFont
         self.color = pColor
         self.position = pygame.Rect(pPosition)
-        self.text = ""
+        self.text = "Нажмите, чтобы вводить текст"
+        self.activated = False
 
     def update(self, events):
+        mouse_pos = pygame.mouse.get_pos()
         for event in events:
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.position.collidepoint(mouse_pos):
+                self.activated = not self.activated
+                self.text = "" if self.text == "Нажмите, чтобы вводить текст" else "Нажмите, чтобы вводить текст"
+        
+        for event in events:
+            if event.type == pygame.KEYDOWN and self.activated:
                 if event.key == pygame.K_BACKSPACE:
                     self.text = self.text[:-1]
                 else:
@@ -89,6 +96,17 @@ class Modal():
         text_rect = self.text.get_rect(center=self.position.center)
         screen.blit(self.text, text_rect)
 
+logged = False
+running = True
+
+#while not logged: TODO вход в аккаунт
+#    events = pygame.event.get()
+#    for event in events:
+#        if event.type == pygame.QUIT:
+#            running = False
+#    screen.fill((20, 20, 25))    
+#    pygame.display.flip()
+
 current_chat = "dev"
 
 settings = Button((40, 40, 50), (60, 60, 70), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
@@ -110,7 +128,6 @@ chats = []
 for i in range(1, 9):
     chats.append(Button((35, 35, 45), (55, 55, 65), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
 
-running = True
 modal_showing = False
 modal = None
 while running:
@@ -148,7 +165,20 @@ while running:
     if send.clicked:
         messages.append(input.text)
         input.text = ""
-        print(messages)
+
+        #import socket TODO запрос к серверу
+
+        #client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        #client.connect(('localhost', 8888))
+
+        #request = messages[-1].encode()
+        #client.send(request)
+
+        #response = client.recv(4096)
+        #print(response.decode())
+
+        #client.close()
 
     input.draw(screen)
     send.draw(screen)
