@@ -103,6 +103,8 @@ send = Button((55, 55, 65), (75, 75, 85), (screen_width // 10 * 9, screen_height
 
 close = Button((70, 130, 180), (255, 0, 0), (screen_width - 30, 0, 30, 30), font, "X")
 
+messages = []
+
 chats = []
 
 for i in range(1, 9):
@@ -134,20 +136,30 @@ while running:
             current_chat = f"Чат {i + 1}"
         chats[i].draw(screen)
     name.draw(screen)
-    input.update(events)
-    input.draw(screen)
     settings.update(events)
     if settings.clicked:
         modal_showing = not modal_showing
     if modal_showing:
             modal = Modal((45, 45, 55), (screen_width // 2 - 100, screen_height // 2 - 50, 200, 100), font, "нету")
     settings.draw(screen)
+    input.update(events)
     send.update(events)
+    if send.clicked:
+        messages.append(input.text)
+        input.text = ""
+        print(messages)
+
+    input.draw(screen)
     send.draw(screen)
     close.update(events)
     if close.clicked:
         running = False
     close.draw(screen)
+
+    last_messages = messages[-6:-1] 
+    for i in range(len(last_messages)):
+        message = TextField((0, 0, 0), (1500, 800 - i * 100, 500, 100), font, last_messages[i])
+        message.draw(screen)
 
     pygame.display.flip()
 
