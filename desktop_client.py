@@ -78,7 +78,7 @@ class Modal():
         self.text = self.font.render(pText, True, (255, 255, 255))
         self.showed = True
 
-        self.close = Button((70, 130, 180), (255, 0, 0), (pPosition[1] + pPosition[2] - 30, pPosition[0], 30, 30), self.font, "X")
+        self.close = Button((70, 130, 180), (255, 0, 0), (pPosition[0] + pPosition[2] - 30, pPosition[1], 30, 30), self.font, "X")
 
     def update(self, events):
         self.close.update(events)
@@ -136,9 +136,9 @@ while running:
     input.draw(screen)
     settings.update(events)
     if settings.clicked:
-        print("Кнопка настроек нажата!")
-        modal_showing = True
-        modal = Modal((100, 100, 100), (1000, 1000, 200, 100), font, "нету")
+        modal_showing = not modal_showing
+    if modal_showing:
+            modal = Modal((100, 100, 100), (screen_width // 2 - 100, screen_height // 2 - 50, 200, 100), font, "нету")
     settings.draw(screen)
 
     pygame.display.flip()
