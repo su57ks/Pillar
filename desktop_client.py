@@ -156,9 +156,9 @@ while running:
         running = False
     close.draw(screen)
 
-    last_messages = messages[-6:-1] 
+    last_messages = messages[-7:][::-1]
     for i in range(len(last_messages)):
-        message = TextField((0, 0, 0), (1500, 800 - i * 100, 500, 100), font, last_messages[i])
+        message = TextField((0, 0, 0), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
         message.draw(screen)
 
     pygame.display.flip()
