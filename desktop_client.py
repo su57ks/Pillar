@@ -131,9 +131,10 @@ while running:
     chats_list.draw(screen)
     for i in range(8):
         chats[i].update(events)
-        if chats[i].clicked:
+        if chats[i].clicked and f"Чат {i + 1}" != current_chat:
             name.text = f"Чат {i + 1}"
             current_chat = f"Чат {i + 1}"
+            messages = []
         chats[i].draw(screen)
     name.draw(screen)
     settings.update(events)
