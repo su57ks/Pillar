@@ -36,19 +36,20 @@ class Button():
         self.current_color = self.standart_color
 
 class TextInput():
-    def __init__(self, pColor, pPosition, pFont):
+    def __init__(self, pColor, pPosition, pFont, pText):
         self.font = pFont
         self.color = pColor
         self.position = pygame.Rect(pPosition)
-        self.text = "Нажмите, чтобы вводить текст"
+        self.text = pText
         self.activated = False
+        self.standart = pText
 
     def update(self, events):
         mouse_pos = pygame.mouse.get_pos()
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.position.collidepoint(mouse_pos):
                 self.activated = not self.activated
-                self.text = "" if self.text == "Нажмите, чтобы вводить текст" else "Нажмите, чтобы вводить текст"
+                self.text = "" if self.text == self.standart else self.standart
         
         for event in events:
             if event.type == pygame.KEYDOWN and self.activated:
@@ -111,7 +112,7 @@ current_chat = "dev"
 
 settings = Button((40, 40, 50), (60, 60, 70), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
 
-input = TextInput((30, 30, 40), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 10 * 5, screen_height // 10), font)
+input = TextInput((30, 30, 40), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 10 * 5, screen_height // 10), font, "Нажмите, что бы ввести текст")
 
 name = TextField((25, 25, 35), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10 * 2), font, current_chat)
 
