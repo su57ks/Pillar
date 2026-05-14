@@ -155,11 +155,19 @@ while running:
 
     if not logged:
         login.update(events)
-        login.draw(screen)
         password.update(events)
-        password.draw(screen)
         login_button.update(events)
-        login_button.draw(screen)
+        if login_button.clicked:
+            if not login.first and not password.first:
+                data["login"] = login.text
+                data["password"] = password.text
+                logged = True
+                with codecs.open("data.json", "w", "utf_8_sig") as f:
+                    json.dump(data, f)
+        else:
+            login_button.draw(screen)
+            login.draw(screen)
+            password.draw(screen)
     else:
         if modal_showing == True:
             modal.update(events)
