@@ -52,11 +52,15 @@ class TextField():
         screen.blit(text, text_rect)
 
 class TextInput(TextField):
-    def __init__(self, pColor, pPosition, pFont, pText):
-        super().__init__(pColor, pPosition, pFont, pText)
+    def __init__(self, pStandart_color, pClick_color, pPosition, pFont, pText):
+        super().__init__(pStandart_color, pPosition, pFont, pText)
         
+        self.standart_color = pStandart_color
+        self.click_color = pClick_color
+        self.current_color = pStandart_color
         self.activated = False
         self.first = True
+        self.standart = pText
 
     def update(self, events):
         mouse_pos = pygame.mouse.get_pos()
@@ -66,6 +70,9 @@ class TextInput(TextField):
                 if self.first:
                     self.text = ""
                     self.first = False
+                if self.text == "" and not self.activated:
+                    self.first = True
+                    self.text = self.standart
         
         for event in events:
             if event.type == pygame.KEYDOWN and self.activated:
@@ -74,8 +81,16 @@ class TextInput(TextField):
                 else:
                     self.text += event.unicode
 
+        if self.activated:
+            self.current_color = self.click_color
+        else:
+            self.current_color = self.standart_color
+
     def draw(self, screen):
-        super().draw(screen)
+        text = self.font.render(self.text, True, (255, 255, 255))
+        pygame.draw.rect(screen, self.current_color, self.position, border_radius=8)
+        text_rect = text.get_rect(center=self.position.center)
+        screen.blit(text, text_rect)
           
 class Modal():
     def __init__(self, pColor, pPosition, pFont, pText):
@@ -101,7 +116,7 @@ current_chat = "dev"
 
 settings = Button((40, 40, 50), (60, 60, 70), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
 
-input = TextInput((30, 30, 40), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 10 * 5, screen_height // 10), font, "Нажмите, что бы ввести текст")
+input = TextInput((30, 30, 40), (60, 60, 40), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 10 * 5, screen_height // 10), font, "Нажмите, что бы ввести текст")
 
 name = TextField((25, 25, 35), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10 * 2), font, current_chat)
 
@@ -111,9 +126,9 @@ send = Button((55, 55, 65), (75, 75, 85), (screen_width // 10 * 9, screen_height
 
 close = Button((70, 130, 180), (255, 0, 0), (screen_width - 30, 0, 30, 30), font, "X")
 
-login = TextInput((30, 30, 40), (screen_width // 5 * 2, screen_height // 10 * 3, screen_width // 5, screen_height // 10), font, "Введите логин")
+login = TextInput((30, 30, 40), (60, 60, 40), (screen_width // 5 * 2, screen_height // 10 * 3, screen_width // 5, screen_height // 10), font, "Введите логин")
 
-password = TextInput((30, 30, 40), (screen_width // 5 * 2, screen_height // 10 * 5, screen_width // 5, screen_height // 10), font, "Введите пароль")
+password = TextInput((30, 30, 40), (60, 60, 40), (screen_width // 5 * 2, screen_height // 10 * 5, screen_width // 5, screen_height // 10), font, "Введите пароль")
 
 login_button = Button((55, 55, 65), (75, 75, 85), (screen_width // 5 * 2, screen_height // 10 * 7, screen_width // 5, screen_height // 10), font, "Войти")
 
