@@ -112,7 +112,7 @@ class Modal():
         text_rect = self.text.get_rect(center=self.position.center)
         screen.blit(self.text, text_rect)
 
-current_chat = "dev"
+current_chat = "Чат 1"
 
 to_settings = Button((50, 55, 65), (80, 85, 100), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
 
@@ -136,12 +136,13 @@ login_button = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, scr
 
 leave = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 7, screen_width // 5, screen_height // 10), font, "Выйти")
 
-messages = []
+messages = {}
 
 chats = []
 
 for i in range(1, 9):
     chats.append(Button((45, 50, 60), (75, 80, 95), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
+    messages[f"Чат {i}"] = []
 
 if os.path.exists("data.json"):
     with codecs.open("data.json", "r", "utf_8_sig") as f:
@@ -157,6 +158,7 @@ else:
     logged = True
     user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
 
+print(messages)
 in_settings = False
 modal_showing = False
 modal = None
@@ -199,7 +201,6 @@ while running:
             if chats[i].clicked and f"Чат {i + 1}" != current_chat:
                 name.text = f"Чат {i + 1}"
                 current_chat = f"Чат {i + 1}"
-                messages = []
             chats[i].draw(screen)
         name.draw(screen)
         to_settings.update(events)
@@ -214,7 +215,8 @@ while running:
                 if modal_showing:
                         modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели сообщение")
             else:
-                messages.append(input.text)
+                messages[current_chat].append(input.text)
+                print(messages)
                 input.text = ""
 
             #import socket TODO запрос к серверу
@@ -234,7 +236,7 @@ while running:
         input.draw(screen)
         send.draw(screen)
 
-        last_messages = messages[-7:][::-1]
+        last_messages = messages[current_chat][-7:][::-1]
         for i in range(len(last_messages)):
             message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
             message.draw(screen)
