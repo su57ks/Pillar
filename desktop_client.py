@@ -1,8 +1,8 @@
-import pygame
+import os
 import sys
 import json
+import pygame
 import codecs
-import os
 
 pygame.init()
 info = pygame.display.Info()
@@ -155,18 +155,15 @@ while running:
                 logged = True
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)
+            else:
+                modal_showing = not modal_showing
+                if modal_showing:
+                        modal = Modal((45, 45, 55), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "вы не ввели логин или пароль")
         else:
             login_button.draw(screen)
             login.draw(screen)
             password.draw(screen)
     else:
-        if modal_showing == True:
-            modal.update(events)
-            modal.draw(screen)
-
-            if modal.showed == False:
-                modal_showing = False
-                modal = None
         chats_list.draw(screen)
         for i in range(8):
             chats[i].update(events)
@@ -209,6 +206,14 @@ while running:
         for i in range(len(last_messages)):
             message = TextField((0, 0, 0), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
             message.draw(screen)
+
+    if modal_showing == True:
+        modal.update(events)
+        modal.draw(screen)
+
+        if modal.showed == False:
+            modal_showing = False
+            modal = None
 
     for event in events:
         if event.type == pygame.QUIT:
