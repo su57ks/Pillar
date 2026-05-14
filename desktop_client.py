@@ -175,7 +175,7 @@ while running:
             else:
                 modal_showing = not modal_showing
                 if modal_showing:
-                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "вы не ввели логин или пароль")
+                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели логин или пароль")
         else:
             login_button.draw(screen)
             login.draw(screen)
@@ -194,14 +194,19 @@ while running:
         settings.update(events)
         if settings.clicked:
             modal_showing = not modal_showing
-        if modal_showing:
-                modal = Modal((55, 60, 75), (screen_width // 2 - 100, screen_height // 2 - 50, 200, 100), font, "нету")
+            if modal_showing:
+                    modal = Modal((55, 60, 75), (screen_width // 2 - 100, screen_height // 2 - 50, 200, 100), font, "Нету")
         settings.draw(screen)
         input.update(events)
         send.update(events)
         if send.clicked:
-            messages.append(input.text)
-            input.text = ""
+            if input.first or input.text == "":
+                modal_showing = not modal_showing
+                if modal_showing:
+                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели сообщение")
+            else:
+                messages.append(input.text)
+                input.text = ""
 
             #import socket TODO запрос к серверу
 
