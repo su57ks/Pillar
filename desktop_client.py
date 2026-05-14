@@ -138,19 +138,16 @@ leave = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_hei
 
 messages = {}
 
-chats = []
-
-for i in range(1, 9):
-    chats.append(Button((45, 50, 60), (75, 80, 95), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
-    messages[f"Чат {i}"] = []
-
 if os.path.exists("data.json"):
     with codecs.open("data.json", "r", "utf_8_sig") as f:
         data = json.load(f)
+    messages = data["messages"]
 else:
-    data = {"login": "", "password": ""}
+    data = {"login": "", "password": "", "messages": {}}
     with codecs.open("data.json", "w", "utf_8_sig") as f:
         json.dump(data, f)
+    for i in range(1, 9):
+        messages[f"Чат {i}"] = []
 
 if data["login"] == "" or data["password"] == "":
     logged = False
@@ -158,7 +155,11 @@ else:
     logged = True
     user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
 
-print(messages)
+chats = []
+
+for i in range(1, 9):
+    chats.append(Button((45, 50, 60), (75, 80, 95), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
+
 in_settings = False
 modal_showing = False
 modal = None
@@ -218,6 +219,9 @@ while running:
                 messages[current_chat].append(input.text)
                 print(messages)
                 input.text = ""
+                data["messages"] = messages
+                with codecs.open("data.json", "w", "utf_8_sig") as f:
+                    json.dump(data, f)
 
             #import socket TODO запрос к серверу
 
