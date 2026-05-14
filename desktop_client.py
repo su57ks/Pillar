@@ -114,7 +114,9 @@ class Modal():
 
 current_chat = "dev"
 
-settings = Button((50, 55, 65), (80, 85, 100), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
+to_settings = Button((50, 55, 65), (80, 85, 100), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
+
+to_chats = Button((50, 55, 65), (80, 85, 100), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Чаты")
 
 input = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 10 * 5, screen_height // 10), font, "Нажмите, что бы ввести текст")
 
@@ -131,6 +133,8 @@ login = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_hei
 password = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 5, screen_width // 5, screen_height // 10), font, "Введите пароль")
 
 login_button = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 7, screen_width // 5, screen_height // 10), font, "Войти")
+
+leave = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 7, screen_width // 5, screen_height // 10), font, "Выйти")
 
 messages = []
 
@@ -153,6 +157,7 @@ else:
     logged = True
     user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
 
+in_settings = False
 modal_showing = False
 modal = None
 running = True
@@ -172,6 +177,12 @@ while running:
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)
                 user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
+                login.activated = False
+                login.first = True
+                login.text = login.standart
+                password.activated = False
+                password.first = True
+                password.text = password.standart
             else:
                 modal_showing = not modal_showing
                 if modal_showing:
@@ -180,7 +191,7 @@ while running:
             login_button.draw(screen)
             login.draw(screen)
             password.draw(screen)
-    else:
+    elif not in_settings:
         user.draw(screen)
         chats_list.draw(screen)
         for i in range(8):
@@ -191,12 +202,10 @@ while running:
                 messages = []
             chats[i].draw(screen)
         name.draw(screen)
-        settings.update(events)
-        if settings.clicked:
-            modal_showing = not modal_showing
-            if modal_showing:
-                    modal = Modal((55, 60, 75), (screen_width // 2 - 100, screen_height // 2 - 50, 200, 100), font, "Нету")
-        settings.draw(screen)
+        to_settings.update(events)
+        if to_settings.clicked:
+            in_settings = True
+        to_settings.draw(screen)
         input.update(events)
         send.update(events)
         if send.clicked:
@@ -229,6 +238,22 @@ while running:
         for i in range(len(last_messages)):
             message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
             message.draw(screen)
+    else:
+        to_chats.update(events)
+        if to_chats.clicked:
+            in_settings = False
+        else:
+            to_chats.draw(screen)
+            user.draw(screen)
+            leave.update(events)
+            if leave.clicked:
+                data = {"login": "", "password": ""}
+                with codecs.open("data.json", "w", "utf_8_sig") as f:
+                    json.dump(data, f)   
+                    logged = False
+                    in_settings = False
+            else:
+                leave.draw(screen)
 
     if modal_showing == True:
         modal.update(events)
