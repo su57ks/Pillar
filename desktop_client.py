@@ -99,7 +99,7 @@ class Modal():
         self.position = pygame.Rect(pPosition)
         self.text = self.font.render(pText, True, (255, 255, 255))
         self.showed = True
-        self.close = Button((70, 130, 180), (255, 0, 0), (pPosition[0] + pPosition[2] - 30, pPosition[1], 30, 30), self.font, "X")
+        self.close = Button((100, 100, 120), (220, 60, 60), (pPosition[0] + pPosition[2] - 30, pPosition[1], 30, 30), self.font, "X")
 
     def update(self, events):
         self.close.update(events)
@@ -114,30 +114,30 @@ class Modal():
 
 current_chat = "dev"
 
-settings = Button((40, 40, 50), (60, 60, 70), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
+settings = Button((50, 55, 65), (80, 85, 100), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
 
-input = TextInput((30, 30, 40), (60, 60, 40), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 10 * 5, screen_height // 10), font, "Нажмите, что бы ввести текст")
+input = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 10 * 5, screen_height // 10), font, "Нажмите, что бы ввести текст")
 
-name = TextField((25, 25, 35), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10 * 2), font, current_chat)
+name = TextField((35, 40, 50), (screen_width // 5 * 2, screen_height // 10, screen_width // 5 * 3, screen_height // 10), font, current_chat)
 
-chats_list = TextField((25, 25, 35), (0, screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, "Список чатов")
+chats_list = TextField((35, 40, 50), (0, screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, "Список чатов")
 
-send = Button((55, 55, 65), (75, 75, 85), (screen_width // 10 * 9, screen_height // 10 * 9, screen_width // 10, screen_height // 10), font, "»")
+send = Button((70, 75, 85), (100, 105, 120), (screen_width // 10 * 9, screen_height // 10 * 9, screen_width // 10, screen_height // 10), font, "»")
 
-close = Button((70, 130, 180), (255, 0, 0), (screen_width - 30, 0, 30, 30), font, "X")
+close = Button((100, 100, 120), (220, 60, 60), (screen_width - 30, 0, 30, 30), font, "X")
 
-login = TextInput((30, 30, 40), (60, 60, 40), (screen_width // 5 * 2, screen_height // 10 * 3, screen_width // 5, screen_height // 10), font, "Введите логин")
+login = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 3, screen_width // 5, screen_height // 10), font, "Введите логин")
 
-password = TextInput((30, 30, 40), (60, 60, 40), (screen_width // 5 * 2, screen_height // 10 * 5, screen_width // 5, screen_height // 10), font, "Введите пароль")
+password = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 5, screen_width // 5, screen_height // 10), font, "Введите пароль")
 
-login_button = Button((55, 55, 65), (75, 75, 85), (screen_width // 5 * 2, screen_height // 10 * 7, screen_width // 5, screen_height // 10), font, "Войти")
+login_button = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 7, screen_width // 5, screen_height // 10), font, "Войти")
 
 messages = []
 
 chats = []
 
 for i in range(1, 9):
-    chats.append(Button((35, 35, 45), (55, 55, 65), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
+    chats.append(Button((45, 50, 60), (75, 80, 95), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
 
 if os.path.exists("data.json"):
     with codecs.open("data.json", "r", "utf_8_sig") as f:
@@ -151,13 +151,14 @@ if data["login"] == "" or data["password"] == "":
     logged = False
 else:
     logged = True
+    user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
 
 modal_showing = False
 modal = None
 running = True
 while running:
     events = pygame.event.get()
-    screen.fill((20, 20, 25))
+    screen.fill((12, 14, 18))
 
     if not logged:
         login.update(events)
@@ -170,15 +171,17 @@ while running:
                 logged = True
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)
+                user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
             else:
                 modal_showing = not modal_showing
                 if modal_showing:
-                        modal = Modal((45, 45, 55), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "вы не ввели логин или пароль")
+                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "вы не ввели логин или пароль")
         else:
             login_button.draw(screen)
             login.draw(screen)
             password.draw(screen)
     else:
+        user.draw(screen)
         chats_list.draw(screen)
         for i in range(8):
             chats[i].update(events)
@@ -192,7 +195,7 @@ while running:
         if settings.clicked:
             modal_showing = not modal_showing
         if modal_showing:
-                modal = Modal((45, 45, 55), (screen_width // 2 - 100, screen_height // 2 - 50, 200, 100), font, "нету")
+                modal = Modal((55, 60, 75), (screen_width // 2 - 100, screen_height // 2 - 50, 200, 100), font, "нету")
         settings.draw(screen)
         input.update(events)
         send.update(events)
@@ -219,7 +222,7 @@ while running:
 
         last_messages = messages[-7:][::-1]
         for i in range(len(last_messages)):
-            message = TextField((0, 0, 0), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
+            message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
             message.draw(screen)
 
     if modal_showing == True:
