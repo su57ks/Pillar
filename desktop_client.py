@@ -35,12 +35,23 @@ class Button():
         screen.blit(self.text, text_rect)
         self.current_color = self.standart_color
 
-class TextInput():
+class TextField():
     def __init__(self, pColor, pPosition, pFont, pText):
         self.font = pFont
         self.color = pColor
         self.position = pygame.Rect(pPosition)
         self.text = pText
+
+    def draw(self, screen):
+        text = self.font.render(self.text, True, (255, 255, 255))
+        pygame.draw.rect(screen, self.color, self.position, border_radius=8)
+        text_rect = text.get_rect(center=self.position.center)
+        screen.blit(text, text_rect)
+
+class TextInput(TextField):
+    def __init__(self, pColor, pPosition, pFont, pText):
+        super().__init__(pColor, pPosition, pFont, pText)
+        
         self.activated = False
         self.standart = pText
 
@@ -59,23 +70,7 @@ class TextInput():
                     self.text += event.unicode
 
     def draw(self, screen):
-        text = self.font.render(self.text, True, (255, 255, 255))
-        pygame.draw.rect(screen, self.color, self.position, border_radius=8)
-        text_rect = text.get_rect(center=self.position.center)
-        screen.blit(text, text_rect)
-
-class TextField():
-    def __init__(self, pColor, pPosition, pFont, pText):
-        self.font = pFont
-        self.color = pColor
-        self.position = pygame.Rect(pPosition)
-        self.text = pText
-
-    def draw(self, screen):
-        text = self.font.render(self.text, True, (255, 255, 255))
-        pygame.draw.rect(screen, self.color, self.position, border_radius=8)
-        text_rect = text.get_rect(center=self.position.center)
-        screen.blit(text, text_rect)
+        super().draw(screen)
           
 class Modal():
     def __init__(self, pColor, pPosition, pFont, pText):
