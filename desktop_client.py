@@ -144,15 +144,6 @@ while running:
     events = pygame.event.get()
     screen.fill((20, 20, 25))
 
-    for event in events:
-            if event.type == pygame.QUIT:
-                running = False
-
-    close.update(events)
-    if close.clicked:
-        running = False
-    close.draw(screen)
-
     if not logged:
         login.update(events)
         password.update(events)
@@ -218,6 +209,15 @@ while running:
         for i in range(len(last_messages)):
             message = TextField((0, 0, 0), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
             message.draw(screen)
+
+    for event in events:
+        if event.type == pygame.QUIT:
+            running = False
+
+    close.update(events)
+    if close.clicked:
+        running = False
+    close.draw(screen)
 
     pygame.display.flip()
 
