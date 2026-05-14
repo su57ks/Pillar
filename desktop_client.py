@@ -1,5 +1,8 @@
 import pygame
 import sys
+import json
+import codecs
+import os
 
 pygame.init()
 info = pygame.display.Info()
@@ -53,14 +56,16 @@ class TextInput(TextField):
         super().__init__(pColor, pPosition, pFont, pText)
         
         self.activated = False
-        self.standart = pText
+        self.first = True
 
     def update(self, events):
         mouse_pos = pygame.mouse.get_pos()
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.position.collidepoint(mouse_pos):
                 self.activated = not self.activated
-                self.text = "" if self.text == self.standart else self.standart
+                if self.first:
+                    self.text = ""
+                    self.first = False
         
         for event in events:
             if event.type == pygame.KEYDOWN and self.activated:
@@ -92,17 +97,6 @@ class Modal():
         text_rect = self.text.get_rect(center=self.position.center)
         screen.blit(self.text, text_rect)
 
-logged = False
-running = True
-
-#while not logged: TODO вход в аккаунт
-#    events = pygame.event.get()
-#    for event in events:
-#        if event.type == pygame.QUIT:
-#            running = False
-#    screen.fill((20, 20, 25))    
-#    pygame.display.flip()
-
 current_chat = "dev"
 
 settings = Button((40, 40, 50), (60, 60, 70), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
@@ -117,6 +111,12 @@ send = Button((55, 55, 65), (75, 75, 85), (screen_width // 10 * 9, screen_height
 
 close = Button((70, 130, 180), (255, 0, 0), (screen_width - 30, 0, 30, 30), font, "X")
 
+login = TextInput((30, 30, 40), (screen_width // 5 * 2, screen_height // 10 * 3, screen_width // 5, screen_height // 10), font, "Введите логин")
+
+password = TextInput((30, 30, 40), (screen_width // 5 * 2, screen_height // 10 * 5, screen_width // 5, screen_height // 10), font, "Введите пароль")
+
+login_button = Button((55, 55, 65), (75, 75, 85), (screen_width // 5 * 2, screen_height // 10 * 7, screen_width // 5, screen_height // 10), font, "Войти")
+
 messages = []
 
 chats = []
@@ -124,69 +124,92 @@ chats = []
 for i in range(1, 9):
     chats.append(Button((35, 35, 45), (55, 55, 65), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
 
+if os.path.exists("data.json"):
+    with codecs.open("data.json", "r", "utf_8_sig") as f:
+        data = json.load(f)
+else:
+    data = {"login": "", "password": ""}
+    with codecs.open("data.json", "w", "utf_8_sig") as f:
+        json.dump(data, f)
+
+if data["login"] == "" or data["password"] == "":
+    logged = False
+else:
+    logged = True
+
 modal_showing = False
 modal = None
+running = True
 while running:
     events = pygame.event.get()
-
-    for event in events:
-        if event.type == pygame.QUIT:
-            running = False
     screen.fill((20, 20, 25))
 
-    if modal_showing == True:
-        modal.update(events)
-        modal.draw(screen)
+    for event in events:
+            if event.type == pygame.QUIT:
+                running = False
 
-        if modal.showed == False:
-            modal_showing = False
-            modal = None
-    chats_list.draw(screen)
-    for i in range(8):
-        chats[i].update(events)
-        if chats[i].clicked and f"Чат {i + 1}" != current_chat:
-            name.text = f"Чат {i + 1}"
-            current_chat = f"Чат {i + 1}"
-            messages = []
-        chats[i].draw(screen)
-    name.draw(screen)
-    settings.update(events)
-    if settings.clicked:
-        modal_showing = not modal_showing
-    if modal_showing:
-            modal = Modal((45, 45, 55), (screen_width // 2 - 100, screen_height // 2 - 50, 200, 100), font, "нету")
-    settings.draw(screen)
-    input.update(events)
-    send.update(events)
-    if send.clicked:
-        messages.append(input.text)
-        input.text = ""
-
-        #import socket TODO запрос к серверу
-
-        #client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        #client.connect(('localhost', 8888))
-
-        #request = messages[-1].encode()
-        #client.send(request)
-
-        #response = client.recv(4096)
-        #print(response.decode())
-
-        #client.close()
-
-    input.draw(screen)
-    send.draw(screen)
     close.update(events)
     if close.clicked:
         running = False
     close.draw(screen)
 
-    last_messages = messages[-7:][::-1]
-    for i in range(len(last_messages)):
-        message = TextField((0, 0, 0), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
-        message.draw(screen)
+    if not logged:
+        login.update(events)
+        login.draw(screen)
+        password.update(events)
+        password.draw(screen)
+        login_button.update(events)
+        login_button.draw(screen)
+    else:
+        if modal_showing == True:
+            modal.update(events)
+            modal.draw(screen)
+
+            if modal.showed == False:
+                modal_showing = False
+                modal = None
+        chats_list.draw(screen)
+        for i in range(8):
+            chats[i].update(events)
+            if chats[i].clicked and f"Чат {i + 1}" != current_chat:
+                name.text = f"Чат {i + 1}"
+                current_chat = f"Чат {i + 1}"
+                messages = []
+            chats[i].draw(screen)
+        name.draw(screen)
+        settings.update(events)
+        if settings.clicked:
+            modal_showing = not modal_showing
+        if modal_showing:
+                modal = Modal((45, 45, 55), (screen_width // 2 - 100, screen_height // 2 - 50, 200, 100), font, "нету")
+        settings.draw(screen)
+        input.update(events)
+        send.update(events)
+        if send.clicked:
+            messages.append(input.text)
+            input.text = ""
+
+            #import socket TODO запрос к серверу
+
+            #client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+            #client.connect(('localhost', 8888))
+
+            #request = messages[-1].encode()
+            #client.send(request)
+
+            #response = client.recv(4096)
+            #print(response.decode())
+
+            #client.close()
+
+        input.draw(screen)
+        send.draw(screen)
+
+        last_messages = messages[-7:][::-1]
+        for i in range(len(last_messages)):
+            message = TextField((0, 0, 0), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
+            message.draw(screen)
 
     pygame.display.flip()
 
