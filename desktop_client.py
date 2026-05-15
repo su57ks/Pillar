@@ -47,7 +47,10 @@ class TextField():
         self.text = pText
 
     def draw(self, screen):
-        text = self.font.render(self.text, True, (255, 255, 255))
+        new_text = self.text
+        if len(self.text) > 50:
+            new_text = "..." + self.text[50::]
+        text = self.font.render(new_text, True, (255, 255, 255))
         pygame.draw.rect(screen, self.color, self.position, border_radius=8)
         text_rect = text.get_rect(center=self.position.center)
         screen.blit(text, text_rect)
@@ -97,7 +100,10 @@ class TextInput(TextField):
             self.current_color = self.standart_color
 
     def draw(self, screen):
-        text = self.font.render(self.text, True, (255, 255, 255))
+        new_text = self.text
+        if len(self.text) > 50:
+            new_text = "..." + self.text[50::]
+        text = self.font.render(new_text, True, (255, 255, 255))
         pygame.draw.rect(screen, self.current_color, self.position, border_radius=8)
         text_rect = text.get_rect(center=self.position.center)
         screen.blit(text, text_rect)
