@@ -148,6 +148,8 @@ leave = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_hei
 
 messages = {}
 
+place = "LOGIN"
+
 if os.path.exists("data.json"):
     with codecs.open("data.json", "r", "utf_8_sig") as f:
         data = json.load(f)
@@ -160,9 +162,9 @@ else:
         messages[f"Чат {i}"] = []
 
 if data["login"] == "" or data["password"] == "":
-    logged = False
+    place = "LOGIN"
 else:
-    logged = True
+    place = "CHATS"
     user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
 
 chats = []
@@ -170,7 +172,6 @@ chats = []
 for i in range(1, 9):
     chats.append(Button((45, 50, 60), (75, 80, 95), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
 
-in_settings = False
 modal_showing = False
 modal = None
 running = True
@@ -178,7 +179,7 @@ while running:
     events = pygame.event.get()
     screen.fill((12, 14, 18))
 
-    if not logged:
+    if place == "LOGIN":
         login.update(events)
         password.update(events)
         login_button.update(events)
@@ -186,7 +187,7 @@ while running:
             if not login.first and not password.first:
                 data["login"] = login.text
                 data["password"] = password.text
-                logged = True
+                place = "CHATS"
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)
                 user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
@@ -227,7 +228,7 @@ while running:
             login_button.draw(screen)
             login.draw(screen)
             password.draw(screen)
-    elif not in_settings:
+    elif place == "CHATS":
         user.draw(screen)
         chats_list.draw(screen)
         for i in range(8):
@@ -239,7 +240,7 @@ while running:
         name.draw(screen)
         to_settings.update(events)
         if to_settings.clicked:
-            in_settings = True
+            place = "SETTINGS"
         to_settings.draw(screen)
         input.update(events)
         send.update(events)
@@ -263,10 +264,10 @@ while running:
         for i in range(len(last_messages)):
             message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
             message.draw(screen)
-    else:
+    elif place == "SETTINGS":
         to_chats.update(events)
         if to_chats.clicked:
-            in_settings = False
+            place = "CHATS"
         else:
             to_chats.draw(screen)
             user.draw(screen)
@@ -278,8 +279,7 @@ while running:
                 data = {"login": "", "password": "", "messages": messages}
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)   
-                    logged = False
-                    in_settings = False
+                    place = "LOGIN"
             else:
                 leave.draw(screen)
 
