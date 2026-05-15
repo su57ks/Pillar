@@ -262,7 +262,10 @@ while running:
             user.draw(screen)
             leave.update(events)
             if leave.clicked:
-                data = {"login": "", "password": ""}
+                messages = {}
+                for i in range(1, 9):
+                    messages[f"Чат {i}"] = []
+                data = {"login": "", "password": "", "messages": messages}
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)   
                     logged = False
