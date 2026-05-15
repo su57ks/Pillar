@@ -128,6 +128,30 @@ class Modal():
         text_rect = self.text.get_rect(center=self.position.center)
         screen.blit(self.text, text_rect)
 
+def network(request):
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    client.connect(('localhost', 8888))
+
+    request = json.dumps(request)
+    request = str(len(request)) + " " + request
+    client.send(request.encode())
+
+    length_str = ""
+    while True:
+        char = client.recv(1).decode()
+        if char == " ":
+            break
+        length_str += char
+    
+    message_length = int(length_str)
+    
+    message_data = client.recv(message_length)
+    
+    message = json.loads(message_data.decode())
+    client.close()
+    return message
+
 current_chat = None
 
 to_settings = Button((50, 55, 65), (80, 85, 100), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
@@ -180,31 +204,9 @@ if data["login"] == "" or data["password"] == "":
 else:
     place = "CHATS"
     user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    client.connect(('localhost', 8888))
-
-    request = {"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]}
-    request = json.dumps(request)
-    request = str(len(request)) + " " + request
-    client.send(request.encode())
-
-    length_str = ""
-    while True:
-        char = client.recv(1).decode()
-        if char == " ":
-            break
-        length_str += char
-    
-    message_length = int(length_str)
-    
-    message_data = client.recv(message_length)
-    
-    message1 = json.loads(message_data.decode())
-    print(message1)
-    client.close()
-    if message1["status"] == 200:
-        messages = message1["messages"]
+    message = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})
+    if message["status"] == 200:
+        messages = message["messages"]
         data["messages"] = messages
         with codecs.open("data.json", "w", "utf_8_sig") as f:
             json.dump(data, f)
@@ -227,29 +229,7 @@ while running:
         login_button.update(events)
         if login_button.clicked:
             if not login_login.first and not password_login.first:
-                client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-                client.connect(('localhost', 8888))
-
-                request = {"version": 1, "command": "login", "login": login_login.text, "password": password_login.text}
-                request = json.dumps(request)
-                request = str(len(request)) + " " + request
-                client.send(request.encode())
-
-                length_str = ""
-                while True:
-                    char = client.recv(1).decode()
-                    if char == " ":
-                        break
-                    length_str += char
-                
-                message_length = int(length_str)
-                
-                message_data = client.recv(message_length)
-                
-                message = json.loads(message_data.decode())
-                print(message)
-                client.close()
+                message = network({"version": 1, "command": "login", "login": login_login.text, "password": password_login.text})
                 if message["status"] == 200:
                     place = "CHATS"
                     data["login"] = login_login.text
@@ -264,29 +244,7 @@ while running:
                     password_login.first = True
                     password_login.text = password_login.standart
 
-                    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-                    client.connect(('localhost', 8888))
-
-                    request = {"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]}
-                    request = json.dumps(request)
-                    request = str(len(request)) + " " + request
-                    client.send(request.encode())
-
-                    length_str = ""
-                    while True:
-                        char = client.recv(1).decode()
-                        if char == " ":
-                            break
-                        length_str += char
-                    
-                    message_length = int(length_str)
-                    
-                    message_data = client.recv(message_length)
-                    
-                    message1 = json.loads(message_data.decode())
-                    print(message)
-                    client.close()
+                    message1 = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})
                     if message1["status"] == 200:
                         messages = message1["messages"]
                         data["messages"] = messages
@@ -340,29 +298,7 @@ while running:
                     with codecs.open("data.json", "w", "utf_8_sig") as f:
                         json.dump(data, f)
 
-                client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-                client.connect(('localhost', 8888))
-
-                request = {"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": messages}
-                request = json.dumps(request)
-                request = str(len(request)) + " " + request
-                client.send(request.encode())
-
-                length_str = ""
-                while True:
-                    char = client.recv(1).decode()
-                    if char == " ":
-                        break
-                    length_str += char
-                
-                message_length = int(length_str)
-                
-                message_data = client.recv(message_length)
-                
-                message = json.loads(message_data.decode())
-                print(message)
-                client.close()
+                message = network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": messages})
 
         input.draw(screen)
         send.draw(screen)
@@ -397,29 +333,7 @@ while running:
         if registration_button.clicked:
             if not login_registration.first and not password1_registration.first and not password2_registration.first:
                 if password1_registration.text == password2_registration.text:
-                    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-                    client.connect(('localhost', 8888))
-
-                    request = {"version": 1, "command": "registration", "login": login_registration.text, "password": password1_registration.text}
-                    request = json.dumps(request)
-                    request = str(len(request)) + " " + request
-                    client.send(request.encode())
-
-                    length_str = ""
-                    while True:
-                        char = client.recv(1).decode()
-                        if char == " ":
-                            break
-                        length_str += char
-                    
-                    message_length = int(length_str)
-                    
-                    message_data = client.recv(message_length)
-                    
-                    message = json.loads(message_data.decode())
-                    print(message)
-                    client.close()
+                    message = network({"version": 1, "command": "registration", "login": login_registration.text, "password": password1_registration.text})
                     if message["status"] == 200:
                         place = "CHATS"
                         data["login"] = login_registration.text
