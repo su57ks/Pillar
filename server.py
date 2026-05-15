@@ -27,14 +27,24 @@ while True:
 
     with codecs.open("server_data.json", "r", "utf_8_sig") as f:
         data = json.load(f)
-
-    password = data.get(message["login"], None)
-    if password == None:
-        response = {"status": 404, "message": "No account"}
-    elif password != message["password"]:
-        response = {"status": 422, "message": "Invalid password"}
-    else:
-        response = {"status": 200, "message": "Login successful"}
+    if message["command"] == "login":
+        password = data.get(message["login"], None)
+        if password == None:
+            response = {"status": 404, "message": "No account"}
+        elif password != message["password"]:
+            response = {"status": 422, "message": "Invalid password"}
+        else:
+            response = {"status": 200, "message": "Login successful"}
+    elif message["command"] == "registration":
+        password = data.get(message["login"], None)
+        if password == None:
+            response = {"status": 200, "message": "Login registration successful"}
+            data[message["login"]] = message["password"]
+            with codecs.open("server_data.json", "w", "utf_8_sig") as f:
+                json.dump(data, f)
+        else:
+            response = {"status": 409, "message": "Another user with this login"}
+            
     response_json = json.dumps(response)
     response_bytes = response_json.encode()
     
