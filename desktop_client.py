@@ -282,6 +282,30 @@ while running:
                     data["messages"] = messages
                     with codecs.open("data.json", "w", "utf_8_sig") as f:
                         json.dump(data, f)
+                        
+                client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+                client.connect(('localhost', 8888))
+
+                request = {"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": messages}
+                request = json.dumps(request)
+                request = str(len(request)) + " " + request
+                client.send(request.encode())
+
+                length_str = ""
+                while True:
+                    char = client.recv(1).decode()
+                    if char == " ":
+                        break
+                    length_str += char
+                
+                message_length = int(length_str)
+                
+                message_data = client.recv(message_length)
+                
+                message = json.loads(message_data.decode())
+                print(message)
+                client.close()
 
         input.draw(screen)
         send.draw(screen)
