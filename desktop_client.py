@@ -65,14 +65,23 @@ class TextInput(TextField):
     def update(self, events):
         mouse_pos = pygame.mouse.get_pos()
         for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.position.collidepoint(mouse_pos):
-                self.activated = not self.activated
-                if self.first:
-                    self.text = ""
-                    self.first = False
-                if self.text == "" and not self.activated:
-                    self.first = True
-                    self.text = self.standart
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self.position.collidepoint(mouse_pos):
+                    self.activated = not self.activated
+                    if self.first:
+                        self.text = ""
+                        self.first = False
+                    if self.text == "" and not self.activated:
+                        self.first = True
+                        self.text = self.standart
+                else:
+                    self.activated = False
+                    if self.first:
+                        self.text = ""
+                        self.first = False
+                    if self.text == "":
+                        self.first = True
+                        self.text = self.standart
         
         for event in events:
             if event.type == pygame.KEYDOWN and self.activated:
