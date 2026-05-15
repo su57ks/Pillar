@@ -3,6 +3,7 @@ import sys
 import json
 import pygame
 import codecs
+import socket
 
 pygame.init()
 info = pygame.display.Info()
@@ -195,6 +196,29 @@ while running:
                 password.activated = False
                 password.first = True
                 password.text = password.standart
+                client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+                client.connect(('localhost', 8888))
+
+                request = {"version": 1, "command": "login", "login": data["login"], "password": data["password"]}
+                request = json.dumps(request)
+                request = str(len(request)) + " " + request
+                client.send(request.encode())
+
+                length_str = ""
+                while True:
+                    char = client.recv(1).decode()
+                    if char == " ":
+                        break
+                    length_str += char
+                
+                message_length = int(length_str)
+                
+                message_data = client.recv(message_length)
+                
+                message = json.loads(message_data.decode())
+
+                client.close()
             else:
                 modal_showing = not modal_showing
                 if modal_showing:
@@ -231,20 +255,6 @@ while running:
                 data["messages"] = messages
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)
-
-            #import socket TODO запрос к серверу
-
-            #client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-            #client.connect(('localhost', 8888))
-
-            #request = messages[-1].encode()
-            #client.send(request)
-
-            #response = client.recv(4096)
-            #print(response.decode())
-
-            #client.close()
 
         input.draw(screen)
         send.draw(screen)
