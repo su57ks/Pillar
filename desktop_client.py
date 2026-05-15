@@ -146,6 +146,8 @@ login_button = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, scr
 
 leave = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 7, screen_width // 5, screen_height // 10), font, "Выйти")
 
+registration = TextField((35, 40, 50), (0, screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, "Регистрация")
+
 messages = {}
 
 place = "LOGIN"
@@ -185,23 +187,11 @@ while running:
         login_button.update(events)
         if login_button.clicked:
             if not login.first and not password.first:
-                data["login"] = login.text
-                data["password"] = password.text
-                place = "CHATS"
-                with codecs.open("data.json", "w", "utf_8_sig") as f:
-                    json.dump(data, f)
-                user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
-                login.activated = False
-                login.first = True
-                login.text = login.standart
-                password.activated = False
-                password.first = True
-                password.text = password.standart
                 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
                 client.connect(('localhost', 8888))
 
-                request = {"version": 1, "command": "login", "login": data["login"], "password": data["password"]}
+                request = {"version": 1, "command": "login", "login": login.text, "password": password.text}
                 request = json.dumps(request)
                 request = str(len(request)) + " " + request
                 client.send(request.encode())
@@ -218,8 +208,30 @@ while running:
                 message_data = client.recv(message_length)
                 
                 message = json.loads(message_data.decode())
-
+                print(message)
                 client.close()
+                if message["status"] == 200:
+                    place = "CHATS"
+                    data["login"] = login.text
+                    data["password"] = password.text
+                    with codecs.open("data.json", "w", "utf_8_sig") as f:
+                        json.dump(data, f)
+                    user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
+                    login.activated = False
+                    login.first = True
+                    login.text = login.standart
+                    password.activated = False
+                    password.first = True
+                    password.text = password.standart
+                elif message["status"] == 404:
+                    place = "REGISTRATION"
+                    modal_showing = not modal_showing
+                    if modal_showing:
+                            modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Аккаунта не существует")
+                elif message["status"] == 422:
+                    modal_showing = not modal_showing
+                    if modal_showing:
+                            modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Неверный пароль")
             else:
                 modal_showing = not modal_showing
                 if modal_showing:
@@ -282,6 +294,8 @@ while running:
                     place = "LOGIN"
             else:
                 leave.draw(screen)
+    elif place == "REGISTRATION":
+        registration.draw(screen)
 
     if modal_showing == True:
         modal.update(events)
