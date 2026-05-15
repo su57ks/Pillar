@@ -1,4 +1,5 @@
 import json
+import codecs
 import socket
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -23,8 +24,17 @@ while True:
     
     message = json.loads(message_data.decode())
     print(f"Получено сообщение: {message}")
-    
-    response = {"status": 200, "message": "Login successful"}
+
+    with codecs.open("server_data.json", "r", "utf_8_sig") as f:
+        data = json.load(f)
+
+    password = data.get(message["login"], None)
+    if password == None:
+        response = {"status": 404, "message": "No account"}
+    elif password != message["password"]:
+        response = {"status": 422, "message": "Invalid password"}
+    else:
+        response = {"status": 200, "message": "Login successful"}
     response_json = json.dumps(response)
     response_bytes = response_json.encode()
     
