@@ -54,6 +54,13 @@ while True:
             with codecs.open("server_data.json", "w", "utf_8_sig") as f:
                 json.dump(data, f)
             response = {"status": 200, "message": "Updated successful"}
+    elif message["command"] == "get messages":
+        if user == None:
+            response = {"status": 404, "message": "No account"}
+        elif user["password"] != message["password"]:
+            response = {"status": 422, "message": "Invalid password"}
+        else:
+            response = {"status": 200, "message": "Updated successful", "messages": user["messages"]}
             
     response_json = json.dumps(response)
     response_bytes = response_json.encode()

@@ -180,6 +180,34 @@ if data["login"] == "" or data["password"] == "":
 else:
     place = "CHATS"
     user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    client.connect(('localhost', 8888))
+
+    request = {"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]}
+    request = json.dumps(request)
+    request = str(len(request)) + " " + request
+    client.send(request.encode())
+
+    length_str = ""
+    while True:
+        char = client.recv(1).decode()
+        if char == " ":
+            break
+        length_str += char
+    
+    message_length = int(length_str)
+    
+    message_data = client.recv(message_length)
+    
+    message1 = json.loads(message_data.decode())
+    print(message1)
+    client.close()
+    if message1["status"] == 200:
+        messages = message1["messages"]
+        data["messages"] = messages
+        with codecs.open("data.json", "w", "utf_8_sig") as f:
+            json.dump(data, f)
 
 chats = []
 
@@ -235,6 +263,35 @@ while running:
                     password_login.activated = False
                     password_login.first = True
                     password_login.text = password_login.standart
+
+                    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+                    client.connect(('localhost', 8888))
+
+                    request = {"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]}
+                    request = json.dumps(request)
+                    request = str(len(request)) + " " + request
+                    client.send(request.encode())
+
+                    length_str = ""
+                    while True:
+                        char = client.recv(1).decode()
+                        if char == " ":
+                            break
+                        length_str += char
+                    
+                    message_length = int(length_str)
+                    
+                    message_data = client.recv(message_length)
+                    
+                    message1 = json.loads(message_data.decode())
+                    print(message)
+                    client.close()
+                    if message1["status"] == 200:
+                        messages = message1["messages"]
+                        data["messages"] = messages
+                        with codecs.open("data.json", "w", "utf_8_sig") as f:
+                            json.dump(data, f)
                 elif message["status"] == 404:
                     place = "REGISTRATION"
                     modal_showing = not modal_showing
@@ -282,7 +339,7 @@ while running:
                     data["messages"] = messages
                     with codecs.open("data.json", "w", "utf_8_sig") as f:
                         json.dump(data, f)
-                        
+
                 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
                 client.connect(('localhost', 8888))
