@@ -128,6 +128,29 @@ class Modal():
         text_rect = self.text.get_rect(center=self.position.center)
         screen.blit(self.text, text_rect)
 
+class PositionButton(Button):
+    def __init__(self, pStandart_color, pClick_color, pPress_color, pPosition, pFont, pText):
+        super().__init__(pStandart_color, pClick_color, pPosition, pFont, pText)
+        self.press_color = pPress_color
+
+    def update(self, events):
+        mouse_pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.position.collidepoint(mouse_pos):
+                self.clicked = not self.clicked
+
+        if self.clicked:
+            self.current_color = self.press_color
+            
+        if self.position.collidepoint(mouse_pos):
+            self.current_color = self.click_color
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.current_color, self.position, border_radius=8)
+        text_rect = self.text.get_rect(center=self.position.center)
+        screen.blit(self.text, text_rect)
+        self.current_color = self.standart_color
+
 def network(request):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -153,6 +176,8 @@ def network(request):
     return message
 
 current_chat = None
+
+just_button = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Чаты")
 
 to_settings = Button((50, 55, 65), (80, 85, 100), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
 
@@ -326,6 +351,8 @@ while running:
             else:
                 leave.draw(screen)
     elif place == "REGISTRATION":
+        just_button.update(events)
+        just_button.draw(screen)
         login_registration.update(events)
         password1_registration.update(events)
         password2_registration.update(events)
