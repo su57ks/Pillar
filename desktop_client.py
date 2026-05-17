@@ -132,14 +132,17 @@ class PositionButton(Button):
     def __init__(self, pStandart_color, pClick_color, pPress_color, pPosition, pFont, pText):
         super().__init__(pStandart_color, pClick_color, pPosition, pFont, pText)
         self.press_color = pPress_color
+        self.pressed = False
 
     def update(self, events):
+        self.clicked = False
         mouse_pos = pygame.mouse.get_pos()
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.position.collidepoint(mouse_pos):
-                self.clicked = not self.clicked
+                self.clicked = True
+                self.pressed = not self.pressed
 
-        if self.clicked:
+        if self.pressed:
             self.current_color = self.press_color
             
         if self.position.collidepoint(mouse_pos):
@@ -179,9 +182,9 @@ current_chat = None
 
 just_button = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Чаты")
 
-to_settings = Button((50, 55, 65), (80, 85, 100), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
+to_settings = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
 
-to_chats = Button((50, 55, 65), (80, 85, 100), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Чаты")
+to_chats = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Чаты")
 
 input = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 10 * 5, screen_height // 10), font, "Нажмите, что бы ввести текст")
 
@@ -239,7 +242,7 @@ else:
 chats = []
 
 for i in range(1, 9):
-    chats.append(Button((45, 50, 60), (75, 80, 95), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
+    chats.append(PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
 
 modal_showing = False
 modal = None
@@ -293,13 +296,20 @@ while running:
             login_login.draw(screen)
             password_login.draw(screen)
     elif place == "CHATS":
+        chat = -1
         user.draw(screen)
         chats_list.draw(screen)
         for i in range(8):
             chats[i].update(events)
-            if chats[i].clicked and f"Чат {i + 1}" != current_chat:
+            if chats[i].clicked:
+                chat = i
                 name.text = f"Чат {i + 1}"
                 current_chat = f"Чат {i + 1}"
+        if chat != -1:
+            for i in range(8):
+                if i != chat:
+                    chats[i].pressed = False
+        for i in range(8):
             chats[i].draw(screen)
         if name.text != None:
             name.draw(screen)
@@ -351,8 +361,6 @@ while running:
             else:
                 leave.draw(screen)
     elif place == "REGISTRATION":
-        just_button.update(events)
-        just_button.draw(screen)
         login_registration.update(events)
         password1_registration.update(events)
         password2_registration.update(events)
