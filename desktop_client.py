@@ -144,9 +144,9 @@ class PositionButton(Button):
 
         if self.pressed:
             self.current_color = self.press_color
-            
-        if self.position.collidepoint(mouse_pos):
-            self.current_color = self.click_color
+        else:
+            if self.position.collidepoint(mouse_pos):
+                self.current_color = self.click_color
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.current_color, self.position, border_radius=8)
@@ -214,6 +214,8 @@ leave = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_hei
 
 messages = {}
 
+chats = []
+
 place = "LOGIN"
 
 if os.path.exists("data.json"):
@@ -238,11 +240,10 @@ else:
         data["messages"] = messages
         with codecs.open("data.json", "w", "utf_8_sig") as f:
             json.dump(data, f)
-
-chats = []
-
-for i in range(1, 9):
-    chats.append(PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
+        i = 1 
+        for key in data["messages"].keys():
+            chats.append(PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, key))
+            i += 1
 
 modal_showing = False
 modal = None
@@ -278,6 +279,10 @@ while running:
                         data["messages"] = messages
                         with codecs.open("data.json", "w", "utf_8_sig") as f:
                             json.dump(data, f)
+                        i = 1 
+                        for key in data["messages"].keys():
+                            chats.append(PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
+                            i += 1
                 elif message["status"] == 404:
                     place = "REGISTRATION"
                     modal_showing = not modal_showing
@@ -299,17 +304,19 @@ while running:
         chat = -1
         user.draw(screen)
         chats_list.draw(screen)
-        for i in range(8):
-            chats[i].update(events)
-            if chats[i].clicked:
-                chat = i
-                name.text = f"Чат {i + 1}"
-                current_chat = f"Чат {i + 1}"
+        j = 0
+        for key in messages.keys():
+            chats[j].update(events)
+            if chats[j].clicked:
+                chat = j
+                name.text = key
+                current_chat = key
+            j += 1
         if chat != -1:
-            for i in range(8):
+            for i in range(j):
                 if i != chat:
                     chats[i].pressed = False
-        for i in range(8):
+        for i in range(j):
             chats[i].draw(screen)
         if name.text != None:
             name.draw(screen)
