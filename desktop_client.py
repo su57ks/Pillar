@@ -212,8 +212,6 @@ messages = {}
 
 chats = []
 
-chats_settings = [to_settings, to_chats]
-
 place = "LOGIN"
 
 if os.path.exists("data.json"):
@@ -339,20 +337,34 @@ while running:
             input.draw(screen)
             send.draw(screen)
         to_settings.update(events)
+        to_chats.update(events)
+        
         if to_settings.clicked:
             place = "SETTINGS"
+            to_settings.pressed = True
+            to_chats.pressed = False
+        else:
+            to_chats.pressed = True
+            to_settings.pressed = False
+        
         to_settings.draw(screen)
+        to_chats.draw(screen)
         if current_chat != None:
             last_messages = messages[current_chat][-7:][::-1]
             for i in range(len(last_messages)):
                 message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
                 message.draw(screen)
     elif place == "SETTINGS":
+        to_settings.update(events)
         to_chats.update(events)
+        
         if to_chats.clicked:
             place = "CHATS"
+            to_settings.pressed = False
+            to_chats.pressed = True
         else:
-            to_chats.draw(screen)
+            to_chats.pressed = False
+            to_settings.pressed = True
             user.draw(screen)
             leave.update(events)
             if leave.clicked:
@@ -365,6 +377,8 @@ while running:
                     place = "LOGIN"
             else:
                 leave.draw(screen)
+        to_settings.draw(screen)
+        to_chats.draw(screen)
     elif place == "REGISTRATION":
         login_registration.update(events)
         password1_registration.update(events)
