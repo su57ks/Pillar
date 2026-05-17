@@ -40,6 +40,7 @@ while True:
             response = {"status": 200, "message": "Login registration successful"}
             data[message["login"]] = {}
             data[message["login"]]["password"] = message["password"]
+            data[message["login"]]["messages"] = {}
             with codecs.open("server_data.json", "w", "utf_8_sig") as f:
                 json.dump(data, f)
         else:
