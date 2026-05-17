@@ -180,9 +180,9 @@ current_chat = None
 
 just_button = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Чаты")
 
-to_settings = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Настройки")
+to_settings = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0, screen_width // 10, screen_height // 10), font, "Н")
 
-to_chats = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, "Чаты")
+to_chats = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, screen_height // 10, screen_width // 10, screen_height // 10), font, "Ч")
 
 input = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 10 * 5, screen_height // 10), font, "Нажмите, что бы ввести текст")
 
@@ -238,7 +238,7 @@ else:
             json.dump(data, f)
         i = 1 
         for key in data["messages"].keys():
-            chats.append(PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, key))
+            chats.append(PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), (screen_height // 10 * 2, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, key))
             i += 1
 
 modal_showing = False
