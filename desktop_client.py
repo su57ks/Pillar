@@ -296,7 +296,7 @@ while running:
                                 json.dump(data, f)
                             i = 1 
                             for key in data["messages"].keys():
-                                chats.append(PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
+                                chats.append(PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, key))
                                 i += 1
                     elif message["status"] == 404:
                         modal_showing = True
