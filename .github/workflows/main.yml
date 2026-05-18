@@ -1,0 +1,50 @@
+name: Build new version
+
+on:
+  push:
+    tags: ['v*']  
+  workflow_dispatch:  
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pyinstaller pygame
+      - run: pyinstaller --onefile --windowed --name "Pillar" desktop_client.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: dist/Pillar.exe
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pyinstaller pygame
+      - run: pyinstaller --onefile --windowed --name "Pillar" desktop_client.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: dist/Pillar
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: sudo apt-get update && sudo apt-get install -y libsdl2-2.0-0 libsdl2-mixer-2.0-0 libsdl2-image-2.0-0 libsdl2-ttf-2.0-0
+      - run: pip install pyinstaller pygame
+      - run: pyinstaller --onefile --name "Pillar" desktop_client.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: dist/Pillar
