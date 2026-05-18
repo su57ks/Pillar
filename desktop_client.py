@@ -280,7 +280,7 @@ while running:
                         data["password"] = password_login.text
                         with codecs.open("data.json", "w", "utf_8_sig") as f:
                             json.dump(data, f)
-                        user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
+                        user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
                         login_login.activated = False
                         login_login.first = True
                         login_login.text = login_login.standart
@@ -411,7 +411,7 @@ while running:
                             data["password"] = password1_registration.text
                             with codecs.open("data.json", "w", "utf_8_sig") as f:
                                 json.dump(data, f)
-                            user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
+                            user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
                             login_registration.activated = False
                             login_registration.first = True
                             login_registration.text = login_login.standart
