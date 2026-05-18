@@ -192,7 +192,9 @@ def network(request):
 
 current_chat = None
 
-just_button = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0, screen_width // 5 * 2, screen_height // 10), font, "Чаты")
+to_registration = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 5, screen_height // 10), font, "Регистрация")
+
+to_login = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 5, screen_height // 10), font, "Вход")
 
 to_settings = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0, screen_width // 10, screen_height // 10), font, "Н")
 
@@ -261,53 +263,54 @@ while running:
     screen.fill((12, 14, 18))
 
     if place == "LOGIN":
-        login_login.update(events)
-        password_login.update(events)
-        login_button.update(events)
-        if login_button.clicked:
-            if not login_login.first and not password_login.first:
-                message = network({"version": 1, "command": "login", "login": login_login.text, "password": password_login.text})
-                if message["status"] == 200:
-                    place = "CHATS"
-                    data["login"] = login_login.text
-                    data["password"] = password_login.text
-                    with codecs.open("data.json", "w", "utf_8_sig") as f:
-                        json.dump(data, f)
-                    user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
-                    login_login.activated = False
-                    login_login.first = True
-                    login_login.text = login_login.standart
-                    password_login.activated = False
-                    password_login.first = True
-                    password_login.text = password_login.standart
-
-                    message1 = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})
-                    if message1["status"] == 200:
-                        messages = message1["messages"]
-                        data["messages"] = messages
+        to_registration.update(events)
+        if to_registration.clicked:
+            place = "REGISTRATION"
+        else:
+            to_registration.draw(screen)
+            login_login.update(events)
+            password_login.update(events)
+            login_button.update(events)
+            if login_button.clicked:
+                if not login_login.first and not password_login.first:
+                    message = network({"version": 1, "command": "login", "login": login_login.text, "password": password_login.text})
+                    if message["status"] == 200:
+                        place = "CHATS"
+                        data["login"] = login_login.text
+                        data["password"] = password_login.text
                         with codecs.open("data.json", "w", "utf_8_sig") as f:
                             json.dump(data, f)
-                        i = 1 
-                        for key in data["messages"].keys():
-                            chats.append(PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
-                            i += 1
-                elif message["status"] == 404:
-                    place = "REGISTRATION"
-                    modal_showing = not modal_showing
-                    if modal_showing:
-                            modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Аккаунта не существует")
-                elif message["status"] == 422:
-                    modal_showing = not modal_showing
-                    if modal_showing:
-                            modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Неверный пароль")
+                        user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
+                        login_login.activated = False
+                        login_login.first = True
+                        login_login.text = login_login.standart
+                        password_login.activated = False
+                        password_login.first = True
+                        password_login.text = password_login.standart
+
+                        message1 = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})
+                        if message1["status"] == 200:
+                            messages = message1["messages"]
+                            data["messages"] = messages
+                            with codecs.open("data.json", "w", "utf_8_sig") as f:
+                                json.dump(data, f)
+                            i = 1 
+                            for key in data["messages"].keys():
+                                chats.append(PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), (0, screen_height // 10 * 2 + (i - 1) * screen_height // 10, screen_width // 5 * 2, screen_height // 10), font, f"Чат {i}"))
+                                i += 1
+                    elif message["status"] == 404:
+                        modal_showing = True
+                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Аккаунта не существует")
+                    elif message["status"] == 422:
+                        modal_showing = True
+                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Неверный пароль")
+                else:
+                    modal_showing = True
+                    modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели логин или пароль")
             else:
-                modal_showing = not modal_showing
-                if modal_showing:
-                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели логин или пароль")
-        else:
-            login_button.draw(screen)
-            login_login.draw(screen)
-            password_login.draw(screen)
+                login_button.draw(screen)
+                login_login.draw(screen)
+                password_login.draw(screen)
     elif place == "CHATS":
         chat = -1
         j = 0
@@ -332,9 +335,8 @@ while running:
             send.update(events)
             if send.clicked:
                 if input.first or input.text == "":
-                    modal_showing = not modal_showing
-                    if modal_showing:
-                            modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели сообщение")
+                    modal_showing = True
+                    modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели сообщение")
                 else:
                     if current_chat != None:
                         messages[current_chat].append(input.text)
@@ -390,48 +392,51 @@ while running:
         to_settings.draw(screen)
         to_chats.draw(screen)
     elif place == "REGISTRATION":
-        login_registration.update(events)
-        password1_registration.update(events)
-        password2_registration.update(events)
-        registration_button.update(events)
-        if registration_button.clicked:
-            if not login_registration.first and not password1_registration.first and not password2_registration.first:
-                if password1_registration.text == password2_registration.text:
-                    message = network({"version": 1, "command": "registration", "login": login_registration.text, "password": password1_registration.text})
-                    if message["status"] == 200:
-                        place = "CHATS"
-                        data["login"] = login_registration.text
-                        data["password"] = password1_registration.text
-                        with codecs.open("data.json", "w", "utf_8_sig") as f:
-                            json.dump(data, f)
-                        user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
-                        login_registration.activated = False
-                        login_registration.first = True
-                        login_registration.text = login_login.standart
-                        password1_registration.activated = False
-                        password1_registration.first = True
-                        password1_registration.text = password_login.standart
-                        password2_registration.activated = False
-                        password2_registration.first = True
-                        password2_registration.text = password_login.standart
-                    elif message["status"] == 409:
-                        place = "REGISTRATION"
-                        modal_showing = not modal_showing
-                        if modal_showing:
-                                modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Пользователь с таким логином уже существует")
-                else:
-                    modal_showing = not modal_showing
-                    if modal_showing:
-                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Пароли не совпадают")
-            else:
-                modal_showing = not modal_showing
-                if modal_showing:
-                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели логин или пароль")
+        to_login.update(events)
+        if to_login.clicked:
+            place = "LOGIN"
         else:
-            login_registration.draw(screen)
-            password1_registration.draw(screen)
-            password2_registration.draw(screen)
-            registration_button.draw(screen)
+            to_login.draw(screen)
+            login_registration.update(events)
+            password1_registration.update(events)
+            password2_registration.update(events)
+            registration_button.update(events)
+            if registration_button.clicked:
+                if not login_registration.first and not password1_registration.first and not password2_registration.first:
+                    if password1_registration.text == password2_registration.text:
+                        message = network({"version": 1, "command": "registration", "login": login_registration.text, "password": password1_registration.text})
+                        if message["status"] == 200:
+                            place = "CHATS"
+                            data["login"] = login_registration.text
+                            data["password"] = password1_registration.text
+                            with codecs.open("data.json", "w", "utf_8_sig") as f:
+                                json.dump(data, f)
+                            user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
+                            login_registration.activated = False
+                            login_registration.first = True
+                            login_registration.text = login_login.standart
+                            password1_registration.activated = False
+                            password1_registration.first = True
+                            password1_registration.text = password_login.standart
+                            password2_registration.activated = False
+                            password2_registration.first = True
+                            password2_registration.text = password_login.standart
+                        elif message["status"] == 409:
+                            place = "REGISTRATION"
+                            modal_showing = not modal_showing
+                            if modal_showing:
+                                    modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Пользователь с таким логином уже существует")
+                    else:
+                        modal_showing = True
+                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Пароли не совпадают")
+                else:
+                    modal_showing = True
+                    modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели логин или пароль")
+            else:
+                login_registration.draw(screen)
+                password1_registration.draw(screen)
+                password2_registration.draw(screen)
+                registration_button.draw(screen)
 
     if modal_showing == True:
         modal.update(events)
