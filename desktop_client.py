@@ -12,6 +12,7 @@ screen_height = info.current_h
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
 pygame.display.set_caption("TrueGram")
 font = pygame.font.SysFont(None, 36)
+pygame.time.Clock().tick(30)
 
 class Button():
     def __init__(self, pStandart_color, pClick_color, pPosition, pFont, pText):
@@ -101,13 +102,26 @@ class TextInput(TextField):
             self.current_color = self.standart_color
 
     def draw(self, screen):
+        mid_text = self.text
         new_text = self.text
-        if len(self.text) > 50:
-            new_text = "..." + self.text[50::]
         text = self.font.render(new_text, True, (255, 255, 255))
         pygame.draw.rect(screen, self.current_color, self.position, border_radius=0)
-        text_rect = text.get_rect(center=self.position.center)
-        screen.blit(text, text_rect)
+        if len(self.text) > 50:
+            new_text = []
+            for i in range(len(self.text) // 50 + 1):
+                new_text.append(mid_text[:50])
+                mid_text = mid_text[50:]
+            for i in range(len(new_text)):
+                text_rect = text.get_rect(midleft=self.position.midleft)
+                text_rect.left = self.position.left + 10
+                text_rect.top = self.position.top + 30 * i
+                text = self.font.render(new_text[i], True, (255, 255, 255))
+                screen.blit(text, text_rect)
+            print(new_text)
+        else:
+            text_rect = text.get_rect(midleft=self.position.midleft)
+            text_rect.left = self.position.left + 10
+            screen.blit(text, text_rect)
           
 class Modal():
     def __init__(self, pColor, pPosition, pFont, pText):
