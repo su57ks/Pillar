@@ -222,8 +222,6 @@ else:
     data = {"login": "", "password": "", "messages": {}}
     with codecs.open("data.json", "w", "utf_8_sig") as f:
         json.dump(data, f)
-    for i in range(1, 9):
-        messages[f"Чат {i}"] = []
 
 if data["login"] == "" or data["password"] == "":
     place = "LOGIN"
@@ -369,8 +367,6 @@ while running:
             leave.update(events)
             if leave.clicked:
                 messages = {}
-                for i in range(1, 9):
-                    messages[f"Чат {i}"] = []
                 data = {"login": "", "password": "", "messages": messages}
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)   
