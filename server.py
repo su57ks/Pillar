@@ -10,7 +10,7 @@ print('Сервер запущен на порту 8888')
 
 if not os.path.exists("data.json"):
     data = {}
-    with codecs.open("data.json", "w", "utf_8_sig") as f:
+    with codecs.open("server_data.json", "w", "utf_8_sig") as f:
         json.dump(data, f)
 
 while True:

@@ -196,9 +196,9 @@ to_registration = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, 
 
 to_login = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 5, screen_height // 10), font, "Вход")
 
-to_settings = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0, screen_width // 10, screen_height // 10), font, "Н")
+to_settings = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0, screen_width // 10, screen_height // 10), font, "Настройки")
 
-to_chats = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, screen_height // 10, screen_width // 10, screen_height // 10), font, "Ч")
+to_chats = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, screen_height // 10, screen_width // 10, screen_height // 10), font, "Чаты")
 
 input = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 2, screen_height // 10 * 9, screen_width // 10 * 4, screen_height // 10), font, "Нажмите, что бы ввести текст")
 
@@ -243,7 +243,7 @@ if data["login"] == "" or data["password"] == "":
     place = "LOGIN"
 else:
     place = "CHATS"
-    user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f"Пользователь: {data["login"]} | Пароль: {data["password"]}")
+    user = TextField((35, 40, 50), (screen_width // 10, 0, screen_width // 10 * 9, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
     message = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})
     if message["status"] == 200:
         messages = message["messages"]
