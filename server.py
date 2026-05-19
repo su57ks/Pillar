@@ -30,44 +30,46 @@ while True:
     
     message = json.loads(message_data.decode())
     print(f"Получено сообщение: {message}")
-
-    with codecs.open("server_data.json", "r", "utf_8_sig") as f:
-        data = json.load(f)
-    user = data.get(message["login"], None)
-    if message["command"] == "login":
-        if user == None:
-            response = {"status": 404, "message": "No account"}
-        elif user["password"] != message["password"]:
-            response = {"status": 422, "message": "Invalid password"}
-        else:
-            response = {"status": 200, "message": "Login successful"}
-    elif message["command"] == "registration":
-        if user == None:
-            response = {"status": 200, "message": "Login registration successful"}
-            data[message["login"]] = {}
-            data[message["login"]]["password"] = message["password"]
-            data[message["login"]]["messages"] = {}
-            with codecs.open("server_data.json", "w", "utf_8_sig") as f:
-                json.dump(data, f)
-        else:
-            response = {"status": 409, "message": "Another user with this login"}
-    elif message["command"] == "update messages":
-        if user == None:
-            response = {"status": 404, "message": "No account"}
-        elif user["password"] != message["password"]:
-            response = {"status": 422, "message": "Invalid password"}
-        else:
-            data[message["login"]]["messages"] = message["messages"]
-            with codecs.open("server_data.json", "w", "utf_8_sig") as f:
-                json.dump(data, f)
-            response = {"status": 200, "message": "Updated successful"}
-    elif message["command"] == "get messages":
-        if user == None:
-            response = {"status": 404, "message": "No account"}
-        elif user["password"] != message["password"]:
-            response = {"status": 422, "message": "Invalid password"}
-        else:
-            response = {"status": 200, "message": "Updated successful", "messages": user["messages"]}
+    if message["command"] == "ping":
+        response = {"status": 200, "message": "Server active"}
+    else:
+        with codecs.open("server_data.json", "r", "utf_8_sig") as f:
+            data = json.load(f)
+        user = data.get(message["login"], None)
+        if message["command"] == "login":
+            if user == None:
+                response = {"status": 404, "message": "No account"}
+            elif user["password"] != message["password"]:
+                response = {"status": 422, "message": "Invalid password"}
+            else:
+                response = {"status": 200, "message": "Login successful"}
+        elif message["command"] == "registration":
+            if user == None:
+                response = {"status": 200, "message": "Login registration successful"}
+                data[message["login"]] = {}
+                data[message["login"]]["password"] = message["password"]
+                data[message["login"]]["messages"] = {}
+                with codecs.open("server_data.json", "w", "utf_8_sig") as f:
+                    json.dump(data, f)
+            else:
+                response = {"status": 409, "message": "Another user with this login"}
+        elif message["command"] == "update messages":
+            if user == None:
+                response = {"status": 404, "message": "No account"}
+            elif user["password"] != message["password"]:
+                response = {"status": 422, "message": "Invalid password"}
+            else:
+                data[message["login"]]["messages"] = message["messages"]
+                with codecs.open("server_data.json", "w", "utf_8_sig") as f:
+                    json.dump(data, f)
+                response = {"status": 200, "message": "Updated successful"}
+        elif message["command"] == "get messages":
+            if user == None:
+                response = {"status": 404, "message": "No account"}
+            elif user["password"] != message["password"]:
+                response = {"status": 422, "message": "Invalid password"}
+            else:
+                response = {"status": 200, "message": "Updated successful", "messages": user["messages"]}
             
     response_json = json.dumps(response)
     response_bytes = response_json.encode()
