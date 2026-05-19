@@ -253,7 +253,7 @@ elif data["login"] == "" or data["password"] == "":
 else:
     place = "CHATS"
     user = TextField((35, 40, 50), (screen_width // 10, 0, screen_width // 10 * 9, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
-    message = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})
+    message = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]}, data["ip"], data["port"])
     if message["status"] == 200:
         messages = message["messages"]
         data["messages"] = messages
@@ -282,7 +282,7 @@ while running:
             login_button.update(events)
             if login_button.clicked:
                 if not login_login.first and not password_login.first:
-                    message = network({"version": 1, "command": "login", "login": login_login.text, "password": password_login.text})
+                    message = network({"version": 1, "command": "login", "login": login_login.text, "password": password_login.text}, data["ip"], data["port"])
                     if message["status"] == 200:
                         place = "CHATS"
                         data["login"] = login_login.text
@@ -297,7 +297,7 @@ while running:
                         password_login.first = True
                         password_login.text = password_login.standart
 
-                        message1 = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})
+                        message1 = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]}, data["ip"], data["port"])
                         if message1["status"] == 200:
                             messages = message1["messages"]
                             data["messages"] = messages
@@ -355,7 +355,7 @@ while running:
                         with codecs.open("data.json", "w", "utf_8_sig") as f:
                             json.dump(data, f)
 
-                    message = network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": messages})
+                    message = network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": messages}, data["ip"], data["port"])
 
             input.draw(screen)
             send.draw(screen)
@@ -413,7 +413,7 @@ while running:
             if registration_button.clicked:
                 if not login_registration.first and not password1_registration.first and not password2_registration.first:
                     if password1_registration.text == password2_registration.text:
-                        message = network({"version": 1, "command": "registration", "login": login_registration.text, "password": password1_registration.text})
+                        message = network({"version": 1, "command": "registration", "login": login_registration.text, "password": password1_registration.text}, data["ip"], data["port"])
                         if message["status"] == 200:
                             place = "CHATS"
                             data["login"] = login_registration.text
@@ -467,6 +467,8 @@ while running:
                             data["ip"] = connect_ip.text
                             data["port"] = port
                             place = "LOGIN"
+                            with codecs.open("data.json", "w", "utf_8_sig") as f:
+                                json.dump(data, f)
 
                 except ValueError:
                     modal_showing = True
