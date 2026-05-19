@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import json
 import pygame
@@ -166,10 +167,10 @@ class PositionButton(Button):
     def draw(self, screen):
         super().draw(screen)
 
-def network(request):
+def network(request, ip, port):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    client.connect(('localhost', 8888))
+    client.connect((ip, port))
 
     request = json.dumps(request)
     request = str(len(request)) + " " + request
@@ -224,6 +225,12 @@ registration_button = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 *
 
 leave = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 7, screen_width // 5, screen_height // 10), font, "Выйти")
 
+connect_ip = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 3, screen_width // 5, screen_height // 10), font, "Введите IP сервера")
+
+connect_port = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 5, screen_width // 5, screen_height // 10), font, "Введите порт сервера")
+
+connect_button = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 7, screen_width // 5, screen_height // 10), font, "Подключиться")
+
 messages = {}
 
 chats = []
@@ -235,11 +242,13 @@ if os.path.exists("data.json"):
         data = json.load(f)
     messages = data["messages"]
 else:
-    data = {"login": "", "password": "", "messages": {}}
+    data = {"login": "", "password": "", "messages": {}, "ip": None, "port": None}
     with codecs.open("data.json", "w", "utf_8_sig") as f:
         json.dump(data, f)
 
-if data["login"] == "" or data["password"] == "":
+if data.get("ip") is None or data.get("port") is None:
+    place = "CONNECTION"
+elif data["login"] == "" or data["password"] == "":
     place = "LOGIN"
 else:
     place = "CHATS"
@@ -437,6 +446,35 @@ while running:
                 password1_registration.draw(screen)
                 password2_registration.draw(screen)
                 registration_button.draw(screen)
+    elif place == "CONNECTION":
+        connect_port.update(events)
+        connect_ip.update(events)
+        connect_button.update(events)
+        if connect_button.clicked:
+            pattern = r'^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$'
+            if not re.match(pattern, connect_ip.text):
+                modal_showing = True
+                modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Неверный IP")
+            else:
+                try:
+                    port = int(connect_port.text)
+                    if port < 1024 or port > 65535:
+                        modal_showing = True
+                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Неверный порт")
+                    else:
+                        message = network({"version": 1, "command": "ping"}, connect_ip.text, port)
+                        if message["status"] == 200:
+                            data["ip"] = connect_ip.text
+                            data["port"] = port
+                            place = "LOGIN"
+
+                except ValueError:
+                    modal_showing = True
+                    modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Неверный порт")
+        else:
+            connect_ip.draw(screen)
+            connect_port.draw(screen)
+            connect_button.draw(screen)
 
     if modal_showing == True:
         modal.update(events)
