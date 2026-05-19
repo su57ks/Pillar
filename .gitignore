@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# PyInstaller (ОЧЕНЬ ВАЖНО!)
+build/
+dist/
+*.spec
+
+# Виртуальное окружение
+venv/
+env/
+.env
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Данные пользователя (если есть секреты или кеш)
+data.json
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Временные файлы
+*.tmp
+*.bak
+
+# Серверные файлы (если не нужны в репозитории)
+server_data.json
