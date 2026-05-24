@@ -173,19 +173,30 @@ class Chat():
         self.title = pTitle
         self.opponent = pOpponent
         self.opened = False
+        self.clicked = False
         self.messages = []
         self.position = pygame.Rect(pPosition)
         self.font = pFont
         self.to_chat = PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), pygame.Rect(pPosition), pFont, pTitle)
+        self.head = TextField((35, 40, 50), (screen_width // 2, 0, screen_width // 5 * 3, screen_height // 10), font, pTitle)
 
-    def update(events):
-        pass
+    def update(self, events):
+        self.clicked = False
+        self.to_chat.update(events)
+        if self.to_chat.clicked:
+            self.clicked = True
+        if self.to_chat.pressed:
+            self.opened = True
+        else:
+            self.opened = False
 
-    def draw(screen):
-        pass
+    def draw(self, screen):
+        self.to_chat.draw(screen)
+        if self.opened:
+            self.head.draw(screen)
 
     def __str__(self):
-        return (f"user: {self.user}, title: {self.title}, opponent: {self.opponent}, "
+        return (f"user: {self.user}, title: {self.title}, opponent: {self.opponent}, clicked: {self.clicked}, "
                 f"opened: {self.opened}, position: {self.position}, to_chat: {self.to_chat}")
 
 def network(request, ip, port):
@@ -223,8 +234,6 @@ to_settings = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0
 to_chats = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, screen_height // 10, screen_width // 10, screen_height // 10), font, "Чаты")
 
 input = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 2, screen_height // 10 * 9, screen_width // 10 * 4, screen_height // 10), font, "Нажмите, что бы ввести текст")
-
-name = TextField((35, 40, 50), (screen_width // 2, 0, screen_width // 5 * 3, screen_height // 10), font, current_chat)
 
 send = Button((70, 75, 85), (100, 105, 120), (screen_width // 10 * 9, screen_height // 10 * 9, screen_width // 10, screen_height // 10), font, "»")
 
@@ -290,7 +299,7 @@ else:
 
 modal_showing = False
 modal = None
-running = False
+running = True
 while running:
     events = pygame.event.get()
     screen.fill((12, 14, 18))
@@ -346,60 +355,54 @@ while running:
                 password_login.draw(screen)
     elif place == "CHATS":
         chat = -1
-        j = 0
-        for key in messages.keys():
-            chats[j].update(events)
-            if chats[j].clicked:
-                chat = j
-                name.text = key
-                current_chat = key
-                if chats[j].t == current_chat and not chats[j].pressed:
-                    current_chat = None
-            j += 1
+        for i in range(len(chats)):
+            chats[i].update(events)
+            if chats[i].clicked and chats[i].opened:
+                chat = i
         if chat != -1:
-            for i in range(j):
+            for i in range(len(chats)):
                 if i != chat:
-                    chats[i].pressed = False
-        for i in range(j):
+                    chats[i].opened = False
+                    chats[i].to_chat.pressed = False
+        for i in range(len(chats)):
             chats[i].draw(screen)
-        if current_chat != None:
-            name.draw(screen)
-            input.update(events)
-            send.update(events)
-            if send.clicked:
-                if input.first or input.text == "":
-                    modal_showing = True
-                    modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели сообщение")
-                else:
-                    if current_chat != None:
-                        messages[current_chat].append(input.text)
-                        print(messages)
-                        message = network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [current_chat, input.text]}, data["ip"], data["port"])
-                        input.text = ""
-                        data["messages"] = messages
-                        with codecs.open("data.json", "w", "utf_8_sig") as f:
-                            json.dump(data, f)
-
-            input.draw(screen)
-            send.draw(screen)
-        to_settings.update(events)
-        to_chats.update(events)
-        
-        if to_settings.clicked:
-            place = "SETTINGS"
-            to_settings.pressed = True
-            to_chats.pressed = False
-        else:
-            to_chats.pressed = True
-            to_settings.pressed = False
-        
-        to_settings.draw(screen)
-        to_chats.draw(screen)
-        if current_chat != None:
-            last_messages = messages[current_chat][-7:][::-1]
-            for i in range(len(last_messages)):
-                message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
-                message.draw(screen)
+        #if current_chat != None:
+        #    input.update(events)
+        #    send.update(events)
+        #    if send.clicked:
+        #        if input.first or input.text == "":
+        #            modal_showing = True
+        #            modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели сообщение")
+        #        else:
+        #            if current_chat != None:
+        #                messages[current_chat].append(input.text)
+        #                print(messages)
+        #                message = network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [current_chat, input.text]}, data["ip"], data["port"])
+        #                input.text = ""
+        #                data["messages"] = messages
+        #                with codecs.open("data.json", "w", "utf_8_sig") as f:
+        #                    json.dump(data, f)
+#
+        #    input.draw(screen)
+        #    send.draw(screen)
+        #to_settings.update(events)
+        #to_chats.update(events)
+        #
+        #if to_settings.clicked:
+        #    place = "SETTINGS"
+        #    to_settings.pressed = True
+        #    to_chats.pressed = False
+        #else:
+        #    to_chats.pressed = True
+        #    to_settings.pressed = False
+        #
+        #to_settings.draw(screen)
+        #to_chats.draw(screen)
+        #if current_chat != None:
+        #    last_messages = messages[current_chat][-7:][::-1]
+        #    for i in range(len(last_messages)):
+        #        message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
+        #        message.draw(screen)
     elif place == "SETTINGS":
         to_settings.update(events)
         to_chats.update(events)
