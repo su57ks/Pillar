@@ -59,7 +59,9 @@ while True:
             elif user["password"] != message["password"]:
                 response = {"status": 422, "message": "Invalid password"}
             else:
-                data[message["login"]]["messages"] = message["messages"]
+                lst = data[message["login"]]["messages"][message["messages"][0]]
+                lst.append(message["messages"][1])
+                data[message["login"]]["messages"][message["messages"][0]] = lst
                 with codecs.open("server_data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)
                 response = {"status": 200, "message": "Updated successful"}

@@ -350,12 +350,11 @@ while running:
                     if current_chat != None:
                         messages[current_chat].append(input.text)
                         print(messages)
+                        message = network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [current_chat, input.text]}, data["ip"], data["port"])
                         input.text = ""
                         data["messages"] = messages
                         with codecs.open("data.json", "w", "utf_8_sig") as f:
                             json.dump(data, f)
-
-                    message = network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": messages}, data["ip"], data["port"])
 
             input.draw(screen)
             send.draw(screen)
