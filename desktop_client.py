@@ -8,12 +8,12 @@ import socket
 
 pygame.init()
 info = pygame.display.Info()
-screen_width = info.current_w
-screen_height = info.current_h
+screen_width = info.current_w 
+screen_height = info.current_h 
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
 pygame.display.set_caption("TrueGram")
 font = pygame.font.SysFont(None, 36)
-pygame.time.Clock().tick(30)
+clock = pygame.time.Clock()
 
 class Button():
     def __init__(self, pStandart_color, pClick_color, pPosition, pFont, pText):
@@ -309,7 +309,9 @@ else:
 modal_showing = False
 modal = None
 running = True
+chat = None
 while running:
+    clock.tick(30)
     events = pygame.event.get()
     screen.fill((12, 14, 18))
 
@@ -363,15 +365,22 @@ while running:
                 login_login.draw(screen)
                 password_login.draw(screen)
     elif place == "CHATS":
-        chat = None
         for i in range(len(chats)):
             chats[i].update(events)
-            if chats[i].opened:
+            print(chats[i])
+            
+            if chats[i].clicked:
+                if chats[i].opened:
                     chat = i
                     current_chat = chats[i].title
-            elif chats[i].clicked:
-                if not chats[i].opened:
+                    break
+                else:
                     current_chat = None
+            if chats[i].opened and chat != None:
+                    chat = i
+                    current_chat = chats[i].title
+
+            print(chat)
         if chat != None:
             for i in range(len(chats)):
                 if i != chat:
