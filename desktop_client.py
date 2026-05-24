@@ -194,7 +194,6 @@ class Chat():
         self.to_chat.draw(screen)
         if self.opened:
             self.head.draw(screen)
-            print(self.messages)
             last_messages = self.messages[-7:][::-1]
             for i in range(len(last_messages)):
                 message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
@@ -205,12 +204,9 @@ class Chat():
                 f"opened: {self.opened}, position: {self.position}, messages: {self.messages}")
     
     def send(self, message):
-        print(message)
         self.messages.append(message)
-        print(self.messages)
         network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [current_chat, input.text]}, data["ip"], data["port"])
         input.text = ""
-        print(self.messages)
 
 def network(request, ip, port):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -367,16 +363,16 @@ while running:
                 login_login.draw(screen)
                 password_login.draw(screen)
     elif place == "CHATS":
-        chat = -1
+        chat = None
         for i in range(len(chats)):
             chats[i].update(events)
-            if chats[i].clicked:
-                if chats[i].opened:
+            if chats[i].opened:
                     chat = i
                     current_chat = chats[i].title
-                else:
+            elif chats[i].clicked:
+                if not chats[i].opened:
                     current_chat = None
-        if chat != -1:
+        if chat != None:
             for i in range(len(chats)):
                 if i != chat:
                     chats[i].opened = False
