@@ -14,11 +14,11 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install pyinstaller pygame
-      - run: pyinstaller --onefile --windowed --name "Pillar" desktop_client.py
+      - run: pyinstaller --onefile --windowed --name "Pillar-Windows" desktop_client.py
       - uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: dist/Pillar-win.exe
+          path: dist/Pillar-Windows.exe
 
   build-macos:
     runs-on: macos-latest
@@ -28,11 +28,11 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install pyinstaller pygame
-      - run: pyinstaller --onefile --windowed --name "Pillar" desktop_client.py
+      - run: pyinstaller --onefile --windowed --name "Pillar-macOS" desktop_client.py
       - uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: dist/Pillar-macos
+          path: dist/Pillar-macOS
 
   build-linux:
     runs-on: ubuntu-latest
@@ -43,8 +43,8 @@ jobs:
           python-version: '3.11'
       - run: sudo apt-get update && sudo apt-get install -y libsdl2-2.0-0 libsdl2-mixer-2.0-0 libsdl2-image-2.0-0 libsdl2-ttf-2.0-0
       - run: pip install pyinstaller pygame
-      - run: pyinstaller --onefile --name "Pillar" desktop_client.py
+      - run: pyinstaller --onefile --name "Pillar-Linux" desktop_client.py
       - uses: actions/upload-artifact@v4
         with:
           name: linux-build
-          path: dist/Pillar-linux
+          path: dist/Pillar-Linux
