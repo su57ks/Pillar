@@ -167,6 +167,27 @@ class PositionButton(Button):
     def draw(self, screen):
         super().draw(screen)
 
+class Chat():
+    def __init__(self, pLogin, pTitle, pOpponent, pPosition, pFont):
+        self.user = pLogin
+        self.title = pTitle
+        self.opponent = pOpponent
+        self.opened = False
+        self.messages = []
+        self.position = pygame.Rect(pPosition)
+        self.font = pFont
+        self.to_chat = PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), pygame.Rect(pPosition), pFont, pTitle)
+
+    def update(events):
+        pass
+
+    def draw(screen):
+        pass
+
+    def __str__(self):
+        return (f"user: {self.user}, title: {self.title}, opponent: {self.opponent}, "
+                f"opened: {self.opened}, position: {self.position}, to_chat: {self.to_chat}")
+
 def network(request, ip, port):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -263,12 +284,13 @@ else:
             json.dump(data, f)
         i = 1 
         for key in data["messages"].keys():
-            chats.append(PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, key))
+            chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font))
+            print(chats[-1])
             i += 1
 
 modal_showing = False
 modal = None
-running = True
+running = False
 while running:
     events = pygame.event.get()
     screen.fill((12, 14, 18))
