@@ -194,10 +194,23 @@ class Chat():
         self.to_chat.draw(screen)
         if self.opened:
             self.head.draw(screen)
+            print(self.messages)
+            last_messages = self.messages[-7:][::-1]
+            for i in range(len(last_messages)):
+                message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
+                message.draw(screen)
 
     def __str__(self):
         return (f"user: {self.user}, title: {self.title}, opponent: {self.opponent}, clicked: {self.clicked}, "
-                f"opened: {self.opened}, position: {self.position}, to_chat: {self.to_chat}")
+                f"opened: {self.opened}, position: {self.position}, messages: {self.messages}")
+    
+    def send(self, message):
+        print(message)
+        self.messages.append(message)
+        print(self.messages)
+        network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [current_chat, input.text]}, data["ip"], data["port"])
+        input.text = ""
+        print(self.messages)
 
 def network(request, ip, port):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -357,8 +370,12 @@ while running:
         chat = -1
         for i in range(len(chats)):
             chats[i].update(events)
-            if chats[i].clicked and chats[i].opened:
-                chat = i
+            if chats[i].clicked:
+                if chats[i].opened:
+                    chat = i
+                    current_chat = chats[i].title
+                else:
+                    current_chat = None
         if chat != -1:
             for i in range(len(chats)):
                 if i != chat:
@@ -366,43 +383,31 @@ while running:
                     chats[i].to_chat.pressed = False
         for i in range(len(chats)):
             chats[i].draw(screen)
-        #if current_chat != None:
-        #    input.update(events)
-        #    send.update(events)
-        #    if send.clicked:
-        #        if input.first or input.text == "":
-        #            modal_showing = True
-        #            modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели сообщение")
-        #        else:
-        #            if current_chat != None:
-        #                messages[current_chat].append(input.text)
-        #                print(messages)
-        #                message = network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [current_chat, input.text]}, data["ip"], data["port"])
-        #                input.text = ""
-        #                data["messages"] = messages
-        #                with codecs.open("data.json", "w", "utf_8_sig") as f:
-        #                    json.dump(data, f)
-#
-        #    input.draw(screen)
-        #    send.draw(screen)
-        #to_settings.update(events)
-        #to_chats.update(events)
-        #
-        #if to_settings.clicked:
-        #    place = "SETTINGS"
-        #    to_settings.pressed = True
-        #    to_chats.pressed = False
-        #else:
-        #    to_chats.pressed = True
-        #    to_settings.pressed = False
-        #
-        #to_settings.draw(screen)
-        #to_chats.draw(screen)
-        #if current_chat != None:
-        #    last_messages = messages[current_chat][-7:][::-1]
-        #    for i in range(len(last_messages)):
-        #        message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
-        #        message.draw(screen)
+        if current_chat != None:
+            input.update(events)
+            send.update(events)
+            if send.clicked:
+                if input.first or input.text == "":
+                    modal_showing = True
+                    modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели сообщение")
+                else:
+                    chats[chat].send(input.text)
+
+            input.draw(screen)
+            send.draw(screen)
+        to_settings.update(events)
+        to_chats.update(events)
+        
+        if to_settings.clicked:
+            place = "SETTINGS"
+            to_settings.pressed = True
+            to_chats.pressed = False
+        else:
+            to_chats.pressed = True
+            to_settings.pressed = False
+        
+        to_settings.draw(screen)
+        to_chats.draw(screen)
     elif place == "SETTINGS":
         to_settings.update(events)
         to_chats.update(events)
