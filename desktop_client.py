@@ -209,6 +209,8 @@ send = Button((70, 75, 85), (100, 105, 120), (screen_width // 10 * 9, screen_hei
 
 close = Button((100, 100, 120), (220, 60, 60), (screen_width - 30, 0, 30, 30), font, "X")
 
+iconify_button = Button((100, 100, 120), (220, 60, 60), (screen_width - 60, 0, 30, 30), font, "-")
+
 login_login = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 3, screen_width // 5, screen_height // 10), font, "Введите логин")
 
 password_login = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 5, screen_width // 5, screen_height // 10), font, "Введите пароль")
@@ -493,6 +495,11 @@ while running:
     if close.clicked:
         running = False
     close.draw(screen)
+
+    iconify_button.update(events)
+    if iconify_button.clicked:
+        pygame.display.iconify()
+    iconify_button.draw(screen)
 
     pygame.display.flip()
 
