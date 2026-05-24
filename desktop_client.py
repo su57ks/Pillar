@@ -168,13 +168,13 @@ class PositionButton(Button):
         super().draw(screen)
 
 class Chat():
-    def __init__(self, pLogin, pTitle, pOpponent, pPosition, pFont):
+    def __init__(self, pLogin, pTitle, pOpponent, pPosition, pFont, pMessages):
         self.user = pLogin
         self.title = pTitle
         self.opponent = pOpponent
         self.opened = False
         self.clicked = False
-        self.messages = []
+        self.messages = pMessages
         self.position = pygame.Rect(pPosition)
         self.font = pFont
         self.to_chat = PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), pygame.Rect(pPosition), pFont, pTitle)
@@ -194,7 +194,7 @@ class Chat():
         self.to_chat.draw(screen)
         if self.opened:
             self.head.draw(screen)
-            last_messages = self.messages[-7:][::-1]
+            last_messages = self.messages[-8:][::-1]
             for i in range(len(last_messages)):
                 message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
                 message.draw(screen)
@@ -302,7 +302,7 @@ else:
             json.dump(data, f)
         i = 1 
         for key in data["messages"].keys():
-            chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font))
+            chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, data["messages"][key]))
             print(chats[-1])
             i += 1
 
