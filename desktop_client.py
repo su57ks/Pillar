@@ -196,7 +196,7 @@ class Chat():
             self.head.draw(screen)
             last_messages = self.messages[-8:][::-1]
             for i in range(len(last_messages)):
-                message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i])
+                message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i]["text"])
                 message.draw(screen)
 
     def __str__(self):
@@ -204,8 +204,8 @@ class Chat():
                 f"opened: {self.opened}, position: {self.position}, messages: {self.messages}")
     
     def send(self, message):
-        self.messages.append(message)
-        network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [current_chat, input.text]}, data["ip"], data["port"])
+        self.messages.append({"text": message})
+        network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [current_chat, self.messages[-1]]}, data["ip"], data["port"])
         input.text = ""
 
 def network(request, ip, port):
@@ -303,7 +303,6 @@ else:
         i = 1 
         for key in data["messages"].keys():
             chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, data["messages"][key]))
-            print(chats[-1])
             i += 1
 
 modal_showing = False
@@ -349,7 +348,7 @@ while running:
                                 json.dump(data, f)
                             i = 1 
                             for key in data["messages"].keys():
-                                chats.append(PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, key))
+                                chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, data["messages"][key]))
                                 i += 1
                     elif message["status"] == 404:
                         modal_showing = True
