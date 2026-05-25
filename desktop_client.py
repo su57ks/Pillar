@@ -497,7 +497,7 @@ while running:
                             data["password"] = password1_registration.text
                             with codecs.open("data.json", "w", "utf_8_sig") as f:
                                 json.dump(data, f)
-                            user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
+                            user = TextField((35, 40, 50), (screen_width // 10, 0, screen_width // 10 * 9, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
                             login_registration.activated = False
                             login_registration.first = True
                             login_registration.text = login_login.standart
@@ -572,18 +572,25 @@ while running:
             search_text.update(events)
             search_button.update(events)
             if search_button.clicked:
-                message = network({"version": 1, "command": "new chat", "login": data["login"], "password": data["password"], "user": search_text.text}, data["ip"], data["port"])
-                if message["status"] == 200:
-                    place = "CHATS"
-                    update()
-                    chat = None
-                    to_search.pressed = False
+                if search_text.text == data["login"]:
                     modal_showing = True
-                    modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, f"Cоздан чат с пользователем {search_text.text}")
-                elif message["status"] == 404 and message["message"] == "No user":
-                    modal_showing = True
-                    modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, f"Пользователя {search_text.text} не существует")
-                search_text.text = ""
+                    modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, f"Вы не можете создать чат с самим собой")
+                else:
+                    message = network({"version": 1, "command": "new chat", "login": data["login"], "password": data["password"], "user": search_text.text}, data["ip"], data["port"])
+                    if message["status"] == 200:
+                        place = "CHATS"
+                        update()
+                        chat = None
+                        to_search.pressed = False
+                        modal_showing = True
+                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, f"Cоздан чат с пользователем {search_text.text}")
+                    elif message["status"] == 404 and message["message"] == "No user":
+                        modal_showing = True
+                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, f"Пользователя {search_text.text} не существует")
+                    elif message["status"] == 409:
+                        modal_showing = True
+                        modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, f"У вас уже есть чат с {search_text.text}")
+                    search_text.text = ""
             search_text.draw(screen)
             search_button.draw(screen)
         
