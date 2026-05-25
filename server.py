@@ -72,6 +72,23 @@ while True:
                 response = {"status": 422, "message": "Invalid password"}
             else:
                 response = {"status": 200, "message": "Updated successful", "messages": user["messages"]}
+        elif message["command"] == "new chat":
+            if user == None:
+                response = {"status": 404, "message": "No account"}
+            elif user["password"] != message["password"]:
+                response = {"status": 422, "message": "Invalid password"}
+            else:
+                dct = data[message["login"]]["messages"]
+                dct[message["user"]] = []
+                data[message["login"]]["messages"] = dct
+
+                dct = data[message["user"]]["messages"]
+                dct[message["login"]] = []
+                data[message["user"]]["messages"] = dct
+                
+                with codecs.open("server_data.json", "w", "utf_8_sig") as f:
+                    json.dump(data, f)
+                response = {"status": 200, "message": "Created successful"}
             
     response_json = json.dumps(response)
     response_bytes = response_json.encode()
