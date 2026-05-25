@@ -235,6 +235,19 @@ def network(request, ip, port):
     client.close()
     return message
 
+def update():
+    global chats
+    message = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]}, data["ip"], data["port"])
+    if message["status"] == 200:
+        messages = message["messages"]
+        data["messages"] = messages
+        with codecs.open("data.json", "w", "utf_8_sig") as f:
+            json.dump(data, f)
+        i = 1 
+        for key in data["messages"].keys():
+            chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, data["messages"][key]))
+            i += 1
+
 chat = None
 
 to_registration = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 5, screen_height // 10), font, "Регистрация")
@@ -303,16 +316,7 @@ elif data["login"] == "" or data["password"] == "":
 else:
     place = "CHATS"
     user = TextField((35, 40, 50), (screen_width // 10, 0, screen_width // 10 * 9, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
-    message = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]}, data["ip"], data["port"])
-    if message["status"] == 200:
-        messages = message["messages"]
-        data["messages"] = messages
-        with codecs.open("data.json", "w", "utf_8_sig") as f:
-            json.dump(data, f)
-        i = 1 
-        for key in data["messages"].keys():
-            chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, data["messages"][key]))
-            i += 1
+    update()
 
 modal_showing = False
 modal = None
@@ -349,16 +353,7 @@ while running:
                         password_login.first = True
                         password_login.text = password_login.standart
 
-                        message1 = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]}, data["ip"], data["port"])
-                        if message1["status"] == 200:
-                            messages = message1["messages"]
-                            data["messages"] = messages
-                            with codecs.open("data.json", "w", "utf_8_sig") as f:
-                                json.dump(data, f)
-                            i = 1 
-                            for key in data["messages"].keys():
-                                chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, data["messages"][key]))
-                                i += 1
+                        update()
                     elif message["status"] == 404:
                         modal_showing = True
                         modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Аккаунта не существует")
@@ -551,7 +546,11 @@ while running:
             search_button.update(events)
             if search_button.clicked:
                 message = network({"version": 1, "command": "new chat", "login": data["login"], "password": data["password"], "user": search_text.text}, data["ip"], data["port"])
-                print(message)
+                if message["status"] == 200:
+                    place = "CHATS"
+                    update()
+                    chat = search_text.text
+                    to_search.pressed = False
             search_text.draw(screen)
             search_button.draw(screen)
         
