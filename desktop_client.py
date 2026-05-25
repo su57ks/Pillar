@@ -286,6 +286,10 @@ registration_button = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 *
 
 leave = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 7, screen_width // 5, screen_height // 10), font, "Выйти")
 
+remove_account = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 5, screen_width // 5, screen_height // 10), font, "Удалить аккаунт")
+
+change_server = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 3, screen_width // 5, screen_height // 10), font, "Сменить сервер")
+
 connect_ip = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 3, screen_width // 5, screen_height // 10), font, "Введите IP сервера")
 
 connect_port = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 5, screen_width // 5, screen_height // 10), font, "Введите порт сервера")
@@ -343,7 +347,7 @@ while running:
                         data["password"] = password_login.text
                         with codecs.open("data.json", "w", "utf_8_sig") as f:
                             json.dump(data, f)
-                        user = TextField((35, 40, 50), (screen_width // 5 * 2, 0, screen_width // 5 * 3, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
+                        user = TextField((35, 40, 50), (screen_width // 10, 0, screen_width // 10 * 9, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
                         login_login.activated = False
                         login_login.first = True
                         login_login.text = login_login.standart
@@ -439,6 +443,8 @@ while running:
             to_settings.pressed = True
             user.draw(screen)
             leave.update(events)
+            remove_account.update(events)
+            change_server.update(events)
             if leave.clicked:
                 messages = {}
                 data["login"] = ""
@@ -447,9 +453,27 @@ while running:
                 chats = []
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)   
-                    place = "LOGIN"
+                place = "LOGIN"
+            elif remove_account.clicked:
+                network({"version": 1, "command": "remove account", "login": data["login"], "password": data["password"]}, data["ip"], data["port"])
+                messages = {}
+                data["login"] = ""
+                data["password"] = ""
+                data["messsages"] = {}
+                chats = []
+                with codecs.open("data.json", "w", "utf_8_sig") as f:
+                    json.dump(data, f)   
+                place = "LOGIN"
+            elif change_server.clicked:
+                data = {"login": "", "password": "", "messages": {}, "ip": None, "port": None} 
+                chats = []
+                with codecs.open("data.json", "w", "utf_8_sig") as f:
+                    json.dump(data, f)   
+                place = "CONNECTION"
             else:
                 leave.draw(screen)
+                remove_account.draw(screen)
+                change_server.draw(screen)
         to_search.draw(screen)
         to_settings.draw(screen)
         to_chats.draw(screen)
