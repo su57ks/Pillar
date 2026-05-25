@@ -205,7 +205,7 @@ class Chat():
     
     def send(self, message):
         self.messages.append({"text": message})
-        network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [current_chat, self.messages[-1]]}, data["ip"], data["port"])
+        network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [chats[chat].title, self.messages[-1]]}, data["ip"], data["port"])
         input.text = ""
 
 def network(request, ip, port):
@@ -232,7 +232,7 @@ def network(request, ip, port):
     client.close()
     return message
 
-current_chat = None
+chat = None
 
 to_registration = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 5, screen_height // 10), font, "Регистрация")
 
@@ -371,13 +371,11 @@ while running:
             if chats[i].clicked:
                 if chats[i].opened:
                     chat = i
-                    current_chat = chats[i].title
                     break
                 else:
-                    current_chat = None
+                    chat = None
             if chats[i].opened and chat != None:
                     chat = i
-                    current_chat = chats[i].title
 
             print(chat)
         if chat != None:
@@ -387,7 +385,7 @@ while running:
                     chats[i].to_chat.pressed = False
         for i in range(len(chats)):
             chats[i].draw(screen)
-        if current_chat != None:
+        if chat != None:
             input.update(events)
             send.update(events)
             if send.clicked:
