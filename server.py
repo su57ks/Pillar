@@ -94,6 +94,20 @@ while True:
                 with codecs.open("server_data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)
                 response = {"status": 200, "message": "Created successful"}
+        elif message["command"] == "remove account":
+            if user == None:
+                response = {"status": 404, "message": "No account"}
+            elif user["password"] != message["password"]:
+                response = {"status": 422, "message": "Invalid password"}
+            else:
+                chats = data[message["login"]]["messages"].keys()
+                for chat in chats:
+                    del data[chat]["messages"][message["login"]]
+                del data[message["login"]]
+
+                with codecs.open("server_data.json", "w", "utf_8_sig") as f:
+                    json.dump(data, f)
+                response = {"status": 200, "message": "Removed successful"}
             
     response_json = json.dumps(response)
     response_bytes = response_json.encode()
