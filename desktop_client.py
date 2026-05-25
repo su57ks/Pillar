@@ -196,7 +196,10 @@ class Chat():
             self.head.draw(screen)
             last_messages = self.messages[-8:][::-1]
             for i in range(len(last_messages)):
-                message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i]["text"])
+                if last_messages[i]["sender"] == self.user:
+                    message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i]["text"])
+                else:
+                    message = TextField((100, 100, 100), (screen_width // 2, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i]["text"])
                 message.draw(screen)
 
     def __str__(self):
@@ -204,7 +207,7 @@ class Chat():
                 f"opened: {self.opened}, position: {self.position}, messages: {self.messages}")
     
     def send(self, message):
-        self.messages.append({"text": message})
+        self.messages.append({"text": message, "sender": self.user})
         network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [chats[chat].title, self.messages[-1]]}, data["ip"], data["port"])
         input.text = ""
 
@@ -241,6 +244,12 @@ to_login = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_
 to_settings = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0, screen_width // 10, screen_height // 10), font, "Настройки")
 
 to_chats = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, screen_height // 10, screen_width // 10, screen_height // 10), font, "Чаты")
+
+to_search = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, screen_height // 5, screen_width // 10, screen_height // 10), font, "Найти по логину")
+
+search_text = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 3, screen_width // 5, screen_height // 10), font, "Введите логин")
+
+search_button = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 5, screen_height // 10), font, "Поиск")
 
 input = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 2, screen_height // 10 * 9, screen_width // 10 * 4, screen_height // 10), font, "Нажмите, что бы ввести текст")
 
@@ -366,7 +375,6 @@ while running:
     elif place == "CHATS":
         for i in range(len(chats)):
             chats[i].update(events)
-            print(chats[i])
             
             if chats[i].clicked:
                 if chats[i].opened:
@@ -377,7 +385,6 @@ while running:
             if chats[i].opened and chat != None:
                     chat = i
 
-            print(chat)
         if chat != None:
             for i in range(len(chats)):
                 if i != chat:
@@ -399,25 +406,36 @@ while running:
             send.draw(screen)
         to_settings.update(events)
         to_chats.update(events)
+        to_search.update(events)
         
         if to_settings.clicked:
             place = "SETTINGS"
             to_settings.pressed = True
             to_chats.pressed = False
+        elif to_search.clicked:
+            place = "SEARCH"
+            to_chats.pressed = False
         else:
             to_chats.pressed = True
             to_settings.pressed = False
         
+        to_search.draw(screen)
         to_settings.draw(screen)
         to_chats.draw(screen)
     elif place == "SETTINGS":
         to_settings.update(events)
         to_chats.update(events)
+        to_search.update(events)
         
         if to_chats.clicked:
             place = "CHATS"
             to_settings.pressed = False
             to_chats.pressed = True
+        elif to_search.clicked:
+            place = "SEARCH"
+            to_settings.pressed = False
+            to_chats.pressed = False
+            to_search.pressed = True
         else:
             to_chats.pressed = False
             to_settings.pressed = True
@@ -425,12 +443,16 @@ while running:
             leave.update(events)
             if leave.clicked:
                 messages = {}
-                data = {"login": "", "password": "", "messages": messages}
+                data["login"] = ""
+                data["password"] = ""
+                data["messsages"] = {}
+                chats = []
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)   
                     place = "LOGIN"
             else:
                 leave.draw(screen)
+        to_search.draw(screen)
         to_settings.draw(screen)
         to_chats.draw(screen)
     elif place == "REGISTRATION":
@@ -510,6 +532,32 @@ while running:
             connect_ip.draw(screen)
             connect_port.draw(screen)
             connect_button.draw(screen)
+    elif place == "SEARCH":
+        to_settings.update(events)
+        to_chats.update(events)
+        to_search.update(events)
+        
+        if to_settings.clicked:
+            place = "SETTINGS"
+            to_settings.pressed = True
+            to_search.pressed = False
+        elif to_chats.clicked:
+            place = "CHATS"
+            to_search.pressed = False
+        else:
+            to_search.pressed = True
+            to_settings.pressed = False
+            search_text.update(events)
+            search_button.update(events)
+            if search_button.clicked:
+                message = network({"version": 1, "command": "new chat", "login": data["login"], "password": data["password"], "user": search_text.text}, data["ip"], data["port"])
+                print(message)
+            search_text.draw(screen)
+            search_button.draw(screen)
+        
+        to_search.draw(screen)
+        to_settings.draw(screen)
+        to_chats.draw(screen)
 
     if modal_showing == True:
         modal.update(events)
