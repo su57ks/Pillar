@@ -62,6 +62,11 @@ while True:
                 lst = data[message["login"]]["messages"][message["messages"][0]]
                 lst.append(message["messages"][1])
                 data[message["login"]]["messages"][message["messages"][0]] = lst
+
+                lst = data[message["messages"][0]]["messages"][message["login"]]
+                lst.append(message["messages"][1])
+                data[message["messages"][0]]["messages"][message["login"]] = lst
+
                 with codecs.open("server_data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)
                 response = {"status": 200, "message": "Updated successful"}
@@ -85,7 +90,7 @@ while True:
                 dct = data[message["user"]]["messages"]
                 dct[message["login"]] = []
                 data[message["user"]]["messages"] = dct
-                
+
                 with codecs.open("server_data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)
                 response = {"status": 200, "message": "Created successful"}
