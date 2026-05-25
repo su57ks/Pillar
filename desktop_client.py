@@ -449,7 +449,7 @@ while running:
                 messages = {}
                 data["login"] = ""
                 data["password"] = ""
-                data["messsages"] = {}
+                data["messages"] = {}
                 chats = []
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)   
@@ -459,7 +459,7 @@ while running:
                 messages = {}
                 data["login"] = ""
                 data["password"] = ""
-                data["messsages"] = {}
+                data["messages"] = {}
                 chats = []
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)   
