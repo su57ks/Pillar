@@ -11,7 +11,7 @@ info = pygame.display.Info()
 screen_width = info.current_w 
 screen_height = info.current_h 
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
-pygame.display.set_caption("TrueGram")
+pygame.display.set_caption("Pillar")
 font = pygame.font.SysFont(None, 36)
 clock = pygame.time.Clock()
 
@@ -260,6 +260,8 @@ to_chats = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, scre
 
 to_search = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, screen_height // 5, screen_width // 10, screen_height // 10), font, "Найти по логину")
 
+update_button = Button((50, 55, 65), (200, 200, 200), (0, screen_height // 10 * 3, screen_width // 10, screen_height // 10), font, "Обновить")
+
 search_text = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 3, screen_width // 5, screen_height // 10), font, "Введите логин")
 
 search_button = Button((70, 75, 85), (100, 105, 120), (screen_width // 5 * 2, screen_height // 10 * 9, screen_width // 5, screen_height // 10), font, "Поиск")
@@ -417,6 +419,11 @@ while running:
         to_search.draw(screen)
         to_settings.draw(screen)
         to_chats.draw(screen)
+
+        update_button.update(events)
+        if update_button.clicked:
+            update()
+        update_button.draw(screen)
     elif place == "SETTINGS":
         to_settings.update(events)
         to_chats.update(events)
