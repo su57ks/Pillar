@@ -576,8 +576,14 @@ while running:
                 if message["status"] == 200:
                     place = "CHATS"
                     update()
-                    chat = search_text.text
+                    chat = None
                     to_search.pressed = False
+                    modal_showing = True
+                    modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, f"Cоздан чат с пользователем {search_text.text}")
+                elif message["status"] == 404 and message["message"] == "No user":
+                    modal_showing = True
+                    modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, f"Пользователя {search_text.text} не существует")
+                search_text.text = ""
             search_text.draw(screen)
             search_button.draw(screen)
         

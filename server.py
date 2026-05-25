@@ -82,6 +82,8 @@ while True:
                 response = {"status": 404, "message": "No account"}
             elif user["password"] != message["password"]:
                 response = {"status": 422, "message": "Invalid password"}
+            elif message["user"] not in data.keys():
+                response = {"status": 404, "message": "No user"}
             else:
                 dct = data[message["login"]]["messages"]
                 dct[message["user"]] = []
