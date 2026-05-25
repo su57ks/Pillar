@@ -49,14 +49,29 @@ class TextField():
         self.position = pygame.Rect(pPosition)
         self.text = pText
 
-    def draw(self, screen):
+    def draw(self, screen, color = "standart"):
+        if color == "standart":
+            color = self.color 
+        mid_text = self.text
         new_text = self.text
-        if len(self.text) > 50:
-            new_text = "..." + self.text[50::]
         text = self.font.render(new_text, True, (255, 255, 255))
-        pygame.draw.rect(screen, self.color, self.position, border_radius=0)
-        text_rect = text.get_rect(center=self.position.center)
-        screen.blit(text, text_rect)
+        pygame.draw.rect(screen, color, self.position, border_radius=0)
+        if len(self.text) > 50:
+            new_text = []
+            for i in range(len(self.text) // 50 + 1):
+                new_text.append(mid_text[:50])
+                mid_text = mid_text[50:]
+            for i in range(len(new_text)):
+                text_rect = text.get_rect(midleft=self.position.midleft)
+                text_rect.left = self.position.left + 10
+                text_rect.top = self.position.top + 30 * i
+                text = self.font.render(new_text[i], True, (255, 255, 255))
+                screen.blit(text, text_rect)
+            print(new_text)
+        else:
+            text_rect = text.get_rect(midleft=self.position.midleft)
+            text_rect.left = self.position.left + 10
+            screen.blit(text, text_rect)
 
 class TextInput(TextField):
     def __init__(self, pStandart_color, pClick_color, pPosition, pFont, pText):
@@ -103,26 +118,7 @@ class TextInput(TextField):
             self.current_color = self.standart_color
 
     def draw(self, screen):
-        mid_text = self.text
-        new_text = self.text
-        text = self.font.render(new_text, True, (255, 255, 255))
-        pygame.draw.rect(screen, self.current_color, self.position, border_radius=0)
-        if len(self.text) > 50:
-            new_text = []
-            for i in range(len(self.text) // 50 + 1):
-                new_text.append(mid_text[:50])
-                mid_text = mid_text[50:]
-            for i in range(len(new_text)):
-                text_rect = text.get_rect(midleft=self.position.midleft)
-                text_rect.left = self.position.left + 10
-                text_rect.top = self.position.top + 30 * i
-                text = self.font.render(new_text[i], True, (255, 255, 255))
-                screen.blit(text, text_rect)
-            print(new_text)
-        else:
-            text_rect = text.get_rect(midleft=self.position.midleft)
-            text_rect.left = self.position.left + 10
-            screen.blit(text, text_rect)
+        super().draw(screen, self.current_color)
           
 class Modal():
     def __init__(self, pColor, pPosition, pFont, pText):
