@@ -306,11 +306,11 @@ if data.get("ip") is None or data.get("port") is None:
 elif data["login"] == "" or data["password"] == "":
     place = "LOGIN"
     sock = socket.socket() 
-    sock.connect(('localhost', 8888))
+    sock.connect((data["ip"], data["port"]))
     sock.setblocking(False) 
 else:
     sock = socket.socket() 
-    sock.connect(('localhost', 8888))
+    sock.connect((data["ip"], data["port"]))
     sock.setblocking(False) 
     place = "CHATS"
     response = network({"version": 1, "command": "login", "login": data["login"], "password": data["password"]})
@@ -469,6 +469,10 @@ while running:
             change_server.update(events)
             if leave.clicked:
                 messages = {}
+                sock.close()
+                sock = socket.socket() 
+                sock.connect((data["ip"], data["port"]))
+                sock.setblocking(False)
                 data["login"] = ""
                 data["password"] = ""
                 data["messages"] = {}
