@@ -230,7 +230,6 @@ def network(request):
 
 def update():
     global chats
-    chats = []
     i = 1 
     for key in messages.keys():
         chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, messages[key]))
@@ -443,7 +442,10 @@ while running:
                 data["messages"] = messages
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)
-                update()
+                for chat in chats:
+                    if chat.title == message["chat"]:
+                        chat.messages.append(message["message"])
+                        break
         except BlockingIOError:
             pass
     elif place == "SETTINGS":
