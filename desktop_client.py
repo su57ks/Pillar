@@ -204,45 +204,36 @@ class Chat():
     
     def send(self, message):
         self.messages.append({"text": message, "sender": self.user})
-        network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [chats[chat].title, self.messages[-1]]}, data["ip"], data["port"])
+        network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [chats[chat].title, self.messages[-1]]})
         input.text = ""
 
-def network(request, ip, port):
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    client.connect((ip, port))
-
+def network(request):
+    sock.setblocking(True)
     request = json.dumps(request)
     request = str(len(request)) + " " + request
-    client.send(request.encode())
+    sock.send(request.encode())
 
     length_str = ""
     while True:
-        char = client.recv(1).decode()
+        char = sock.recv(1).decode()
         if char == " ":
             break
         length_str += char
     
     message_length = int(length_str)
     
-    message_data = client.recv(message_length)
+    message_data = sock.recv(message_length)
     
     message = json.loads(message_data.decode())
-    client.close()
+    sock.setblocking(False)
     return message
 
 def update():
     global chats
-    message = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]}, data["ip"], data["port"])
-    if message["status"] == 200:
-        messages = message["messages"]
-        data["messages"] = messages
-        with codecs.open("data.json", "w", "utf_8_sig") as f:
-            json.dump(data, f)
-        i = 1 
-        for key in data["messages"].keys():
-            chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, data["messages"][key]))
-            i += 1
+    i = 1 
+    for key in data["messages"].keys():
+        chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, data["messages"][key]))
+        i += 1
 
 chat = None
 
@@ -315,7 +306,13 @@ if data.get("ip") is None or data.get("port") is None:
     place = "CONNECTION"
 elif data["login"] == "" or data["password"] == "":
     place = "LOGIN"
+    sock = socket.socket() 
+    sock.connect(('localhost', 8888))
+    sock.setblocking(False) 
 else:
+    sock = socket.socket() 
+    sock.connect(('localhost', 8888))
+    sock.setblocking(False) 
     place = "CHATS"
     user = TextField((35, 40, 50), (screen_width // 10, 0, screen_width // 10 * 9, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
     update()
@@ -340,7 +337,7 @@ while running:
             login_button.update(events)
             if login_button.clicked:
                 if not login_login.first and not password_login.first:
-                    message = network({"version": 1, "command": "login", "login": login_login.text, "password": password_login.text}, data["ip"], data["port"])
+                    message = network({"version": 1, "command": "login", "login": login_login.text, "password": password_login.text})
                     if message["status"] == 200:
                         place = "CHATS"
                         data["login"] = login_login.text
@@ -354,8 +351,13 @@ while running:
                         password_login.activated = False
                         password_login.first = True
                         password_login.text = password_login.standart
-
-                        update()
+                        message = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})
+                        if message["status"] == 200:
+                            messages = message["messages"]
+                            data["messages"] = messages
+                            with codecs.open("data.json", "w", "utf_8_sig") as f:
+                                json.dump(data, f)
+                            update()
                     elif message["status"] == 404:
                         modal_showing = True
                         modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Аккаунта не существует")
@@ -420,10 +422,28 @@ while running:
         to_settings.draw(screen)
         to_chats.draw(screen)
 
-        update_button.update(events)
-        if update_button.clicked:
-            update()
-        update_button.draw(screen)
+        try:
+            n = sock.recv(1)  
+            length_str = n.decode()
+            while True:
+                char = sock.recv(1).decode()
+                if char == " ":
+                    break
+                length_str += char
+            
+            message_length = int(length_str)
+            
+            message_data = sock.recv(message_length)
+            
+            message = json.loads(message_data.decode())
+            if message["command"] == "new message":
+                messages = message["messages"]
+                data["messages"] = messages
+                with codecs.open("data.json", "w", "utf_8_sig") as f:
+                    json.dump(data, f)
+                update()
+        except BlockingIOError:
+            pass
     elif place == "SETTINGS":
         to_settings.update(events)
         to_chats.update(events)
@@ -455,7 +475,7 @@ while running:
                     json.dump(data, f)   
                 place = "LOGIN"
             elif remove_account.clicked:
-                network({"version": 1, "command": "remove account", "login": data["login"], "password": data["password"]}, data["ip"], data["port"])
+                network({"version": 1, "command": "remove account", "login": data["login"], "password": data["password"]})
                 messages = {}
                 data["login"] = ""
                 data["password"] = ""
@@ -490,7 +510,7 @@ while running:
             if registration_button.clicked:
                 if not login_registration.first and not password1_registration.first and not password2_registration.first:
                     if password1_registration.text == password2_registration.text:
-                        message = network({"version": 1, "command": "registration", "login": login_registration.text, "password": password1_registration.text}, data["ip"], data["port"])
+                        message = network({"version": 1, "command": "registration", "login": login_registration.text, "password": password1_registration.text})
                         if message["status"] == 200:
                             place = "CHATS"
                             data["login"] = login_registration.text
@@ -539,7 +559,10 @@ while running:
                         modal_showing = True
                         modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Неверный порт")
                     else:
-                        message = network({"version": 1, "command": "ping"}, connect_ip.text, port)
+                        sock = socket.socket() 
+                        sock.connect(('localhost', 8888))
+                        sock.setblocking(False) 
+                        message = network({"version": 1, "command": "ping"})
                         if message["status"] == 200:
                             data["ip"] = connect_ip.text
                             data["port"] = port
@@ -576,7 +599,7 @@ while running:
                     modal_showing = True
                     modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, f"Вы не можете создать чат с самим собой")
                 else:
-                    message = network({"version": 1, "command": "new chat", "login": data["login"], "password": data["password"], "user": search_text.text}, data["ip"], data["port"])
+                    message = network({"version": 1, "command": "new chat", "login": data["login"], "password": data["password"], "user": search_text.text})
                     if message["status"] == 200:
                         place = "CHATS"
                         update()
