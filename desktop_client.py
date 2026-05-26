@@ -314,6 +314,7 @@ else:
     sock.connect(('localhost', 8888))
     sock.setblocking(False) 
     place = "CHATS"
+    response = network({"version": 1, "command": "login", "login": data["login"], "password": data["password"]})
     user = TextField((35, 40, 50), (screen_width // 10, 0, screen_width // 10 * 9, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
     update()
 
@@ -437,7 +438,7 @@ while running:
             
             message = json.loads(message_data.decode())
             if message["command"] == "new message":
-                messages = message["messages"]
+                messages[message["chat"]].append(message["message"])
                 data["messages"] = messages
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)

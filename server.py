@@ -108,10 +108,15 @@ while True:
                                         response = {"status": 200, "message": "Updated successful"}
                                         
                                         # push получателю
+                                        print(connected_clients)
+                                        print(message["messages"][0])
                                         if message["messages"][0] in connected_clients:
                                             to_user = {"command": "new message", "chat": message["login"], "message": message["messages"][1]}
+                                            print(to_user)
                                             to_json = json.dumps(to_user)
+                                            print(to_json)
                                             connected_clients[message["messages"][0]].send(f"{len(to_json)} {to_json}".encode())
+                                            print("sended")
                                 
                                 elif message["command"] == "get messages":
                                     if user == None:
