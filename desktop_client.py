@@ -186,8 +186,10 @@ class Chat():
             self.opened = True
         else:
             self.opened = False
+        mouse_pos = pygame.mouse.get_pos()
+        position = pygame.Rect((screen_width // 2, screen_height // 10, screen_width // 2, screen_height // 10 * 8))
         for event in events:
-            if event.type == pygame.MOUSEWHEEL:
+            if event.type == pygame.MOUSEWHEEL and position.collidepoint(mouse_pos):
                 y = event.y
                 if y == 1:
                     if self.offset < len(self.messages) - 8:
@@ -216,6 +218,7 @@ class Chat():
                 f"opened: {self.opened}, position: {self.position}, messages: {self.messages}")
     
     def send(self, message):
+        self.offset = 1
         self.messages.append({"text": message, "sender": self.user})
         network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [chats[chat].title, self.messages[-1]]})
         input.text = ""
@@ -403,6 +406,9 @@ while running:
                 if i != chat:
                     chats[i].opened = False
                     chats[i].to_chat.pressed = False
+                else:
+                    chats[i].opened = True
+                    chats[i].to_chat.pressed = True
         for i in range(len(chats)):
             chats[i].draw(screen)
         if chat != None:
