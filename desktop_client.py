@@ -67,7 +67,6 @@ class TextField():
                 text_rect.top = self.position.top + 30 * i
                 text = self.font.render(new_text[i], True, (255, 255, 255))
                 screen.blit(text, text_rect)
-            print(new_text)
         else:
             text_rect = text.get_rect(midleft=self.position.midleft)
             text_rect.left = self.position.left + 10
@@ -332,7 +331,6 @@ else:
     place = "CHATS"
     response = network({"version": 1, "command": "login", "login": data["login"], "password": data["password"]})
     messages = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})["messages"]
-    print(messages)
     user = TextField((35, 40, 50), (screen_width // 10, 0, screen_width // 10 * 9, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
     create()
 
@@ -468,7 +466,6 @@ while running:
                         chat.messages.append(message["message"])
                         break
             elif message["command"] == "new chat":
-                print(message)
                 messages[message["chat"]] = []
                 data["messages"] = messages
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
@@ -481,21 +478,18 @@ while running:
         mouse_pos = pygame.mouse.get_pos()
         position = pygame.Rect((screen_width // 10, 0, screen_width // 5 * 2, screen_height))
         last_offset = offset
-        print(offset)
         for event in events:
             if event.type == pygame.MOUSEWHEEL and position.collidepoint(mouse_pos):
-                print("wheel")
                 y = event.y
                 if y == 1:
-                    if offset > 1:
+                    if offset > 0:
                         offset -= 1
                 else:
                     if offset < len(messages) - 10:
                         offset += 1
-                print(offset)
         if last_offset != offset:
             for i in range(len(messages.keys())):
-                chats[i].position = pygame.Rect((screen_width // 10, screen_height // 10 * i - offset * screen_height // 10, screen_width // 5 * 2, screen_height // 10))
+                chats[i].to_chat.position = pygame.Rect((screen_width // 10, screen_height // 10 * i - offset * screen_height // 10, screen_width // 5 * 2, screen_height // 10))
     elif place == "SETTINGS":
         to_settings.update(events)
         to_chats.update(events)
