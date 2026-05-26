@@ -200,13 +200,10 @@ class Chat():
         self.to_chat.draw(screen)
         if self.opened:
             self.head.draw(screen)
-            print(self.offset)
             if self.offset != 1:
                 last_messages = self.messages[-(8 + self.offset):-self.offset][::-1]
             else:
                 last_messages = self.messages[-8:][::-1]
-            print(self.messages[-1])
-            print(last_messages)
             for i in range(len(last_messages)):
                 if last_messages[i]["sender"] == self.user:
                     message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i]["text"])
@@ -341,7 +338,7 @@ chat = None
 while running:
     clock.tick(30)
     events = pygame.event.get()
-    screen.fill((12, 14, 18))
+    screen.fill((6, 14, 33))
 
     if place == "LOGIN":
         to_registration.update(events)
@@ -462,6 +459,13 @@ while running:
                     if chat.title == message["chat"]:
                         chat.messages.append(message["message"])
                         break
+            elif message["command"] == "new chat":
+                print(message)
+                messages[message["chat"]] = []
+                data["messages"] = messages
+                with codecs.open("data.json", "w", "utf_8_sig") as f:
+                    json.dump(data, f)
+                chats.append(Chat(data["login"], message["chat"], message["chat"], (screen_width // 10, screen_height // 10 * (len(messages.keys()) - 1), screen_width // 5 * 2, screen_height // 10), font, []))
         except BlockingIOError:
             pass
     elif place == "SETTINGS":

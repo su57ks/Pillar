@@ -86,6 +86,7 @@ while True:
                                 elif message["command"] == "registration":
                                     if user == None:
                                         response = {"status": 200, "message": "Login registration successful"}
+                                        connected_clients[message["login"]] = sock
                                         data[message["login"]] = {}
                                         data[message["login"]]["password"] = message["password"]
                                         data[message["login"]]["messages"] = {}
@@ -152,6 +153,19 @@ while True:
                                         with codecs.open("server_data.json", "w", "utf_8_sig") as f:
                                             json.dump(data, f)
                                         response = {"status": 200, "message": "Created successful"}
+
+                                        print(connected_clients)
+                                        print(message["user"])
+                                        if message["user"] in connected_clients:
+                                            to_user = {"command": "new chat", "chat": message["login"]}
+                                            print(to_user)
+                                            to_json = json.dumps(to_user)
+                                            print(to_json)
+                                            try:
+                                                connected_clients[message["user"]].send(f"{len(to_json)} {to_json}".encode())
+                                                print("sended")
+                                            except:
+                                                print("oh no")
                                 
                                 elif message["command"] == "remove account":
                                     if user == None:
