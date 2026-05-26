@@ -244,7 +244,7 @@ def network(request):
     sock.setblocking(False)
     return message
 
-def update():
+def create():
     global chats
     i = 1 
     for key in messages.keys():
@@ -307,6 +307,8 @@ chats = []
 
 place = "LOGIN"
 
+offset = 0
+
 if os.path.exists("data.json"):
     with codecs.open("data.json", "r", "utf_8_sig") as f:
         data = json.load(f)
@@ -332,7 +334,7 @@ else:
     messages = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})["messages"]
     print(messages)
     user = TextField((35, 40, 50), (screen_width // 10, 0, screen_width // 10 * 9, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
-    update()
+    create()
 
 modal_showing = False
 modal = None
@@ -374,7 +376,7 @@ while running:
                             data["messages"] = messages
                             with codecs.open("data.json", "w", "utf_8_sig") as f:
                                 json.dump(data, f)
-                            update()
+                            create()
                     elif message["status"] == 404:
                         modal_showing = True
                         modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Аккаунта не существует")
@@ -474,6 +476,26 @@ while running:
                 chats.append(Chat(data["login"], message["chat"], message["chat"], (screen_width // 10, screen_height // 10 * (len(messages.keys()) - 1), screen_width // 5 * 2, screen_height // 10), font, []))
         except BlockingIOError:
             pass
+        
+        
+        mouse_pos = pygame.mouse.get_pos()
+        position = pygame.Rect((screen_width // 10, 0, screen_width // 5 * 2, screen_height))
+        last_offset = offset
+        print(offset)
+        for event in events:
+            if event.type == pygame.MOUSEWHEEL and position.collidepoint(mouse_pos):
+                print("wheel")
+                y = event.y
+                if y == 1:
+                    if offset > 1:
+                        offset -= 1
+                else:
+                    if offset < len(messages) - 10:
+                        offset += 1
+                print(offset)
+        if last_offset != offset:
+            for i in range(len(messages.keys())):
+                chats[i].position = pygame.Rect((screen_width // 10, screen_height // 10 * i - offset * screen_height // 10, screen_width // 5 * 2, screen_height // 10))
     elif place == "SETTINGS":
         to_settings.update(events)
         to_chats.update(events)
@@ -637,7 +659,7 @@ while running:
                     if message["status"] == 200:
                         messages = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})["messages"]
                         place = "CHATS"
-                        update()
+                        create()
                         chat = None
                         to_search.pressed = False
                         modal_showing = True
