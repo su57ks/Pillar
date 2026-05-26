@@ -173,6 +173,7 @@ class Chat():
         self.messages = pMessages
         self.position = pygame.Rect(pPosition)
         self.font = pFont
+        self.offset = 1
         self.to_chat = PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), pygame.Rect(pPosition), pFont, pTitle)
         self.head = TextField((35, 40, 50), (screen_width // 2, 0, screen_width // 5 * 3, screen_height // 10), font, pTitle)
 
@@ -185,12 +186,27 @@ class Chat():
             self.opened = True
         else:
             self.opened = False
+        for event in events:
+            if event.type == pygame.MOUSEWHEEL:
+                y = event.y
+                if y == 1:
+                    if self.offset < len(self.messages) - 8:
+                        self.offset += 1
+                else:
+                    if self.offset > 1:
+                        self.offset -= 1
 
     def draw(self, screen):
         self.to_chat.draw(screen)
         if self.opened:
             self.head.draw(screen)
-            last_messages = self.messages[-8:][::-1]
+            print(self.offset)
+            if self.offset != 1:
+                last_messages = self.messages[-(8 + self.offset):-self.offset][::-1]
+            else:
+                last_messages = self.messages[-8:][::-1]
+            print(self.messages[-1])
+            print(last_messages)
             for i in range(len(last_messages)):
                 if last_messages[i]["sender"] == self.user:
                     message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i]["text"])
