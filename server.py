@@ -37,6 +37,11 @@ while True:
                 chunk = sock.recv(4096).decode()
                 if not chunk:
                     # клиент отключился
+                    # Удаляем из connected_clients
+                    for login, s in list(connected_clients.items()):
+                        if s == sock:
+                            del connected_clients[login]
+                            break
                     sockets_list.remove(sock)
                     del buffers[sock]
                     sock.close()
@@ -174,6 +179,10 @@ while True:
                         break
                         
             except:
+                for login, s in list(connected_clients.items()):
+                    if s == sock:
+                        del connected_clients[login]
+                        break
                 if sock in sockets_list:
                     sockets_list.remove(sock)
                 if sock in buffers:

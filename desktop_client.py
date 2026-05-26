@@ -230,9 +230,10 @@ def network(request):
 
 def update():
     global chats
+    chats = []
     i = 1 
-    for key in data["messages"].keys():
-        chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, data["messages"][key]))
+    for key in messages.keys():
+        chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, messages[key]))
         i += 1
 
 chat = None
@@ -246,8 +247,6 @@ to_settings = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, 0
 to_chats = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, screen_height // 10, screen_width // 10, screen_height // 10), font, "Чаты")
 
 to_search = PositionButton((50, 55, 65), (80, 85, 100), (200, 200, 200), (0, screen_height // 5, screen_width // 10, screen_height // 10), font, "Найти по логину")
-
-update_button = Button((50, 55, 65), (200, 200, 200), (0, screen_height // 10 * 3, screen_width // 10, screen_height // 10), font, "Обновить")
 
 search_text = TextInput((40, 45, 55), (75, 80, 95), (screen_width // 5 * 2, screen_height // 10 * 3, screen_width // 5, screen_height // 10), font, "Введите логин")
 
@@ -315,6 +314,8 @@ else:
     sock.setblocking(False) 
     place = "CHATS"
     response = network({"version": 1, "command": "login", "login": data["login"], "password": data["password"]})
+    messages = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})["messages"]
+    print(messages)
     user = TextField((35, 40, 50), (screen_width // 10, 0, screen_width // 10 * 9, screen_height // 10), font, f'Пользователь: {data["login"]} | Пароль: {data["password"]}')
     update()
 
@@ -602,6 +603,7 @@ while running:
                 else:
                     message = network({"version": 1, "command": "new chat", "login": data["login"], "password": data["password"], "user": search_text.text})
                     if message["status"] == 200:
+                        messages = network({"version": 1, "command": "get messages", "login": data["login"], "password": data["password"]})["messages"]
                         place = "CHATS"
                         update()
                         chat = None
