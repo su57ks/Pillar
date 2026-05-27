@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import json
+import time
 import pygame
 import codecs
 import socket
@@ -164,9 +165,9 @@ class PositionButton(Button):
 
 class Chat():
     def __init__(self, pLogin, pTitle, pOpponent, pPosition, pFont, pMessages):
-        self.user = pLogin
+        self.login = pLogin
         self.title = pTitle
-        self.opponent = pOpponent
+        self.to = pOpponent
         self.opened = False
         self.clicked = False
         self.messages = pMessages
@@ -205,9 +206,8 @@ class Chat():
                 last_messages = self.messages[-(8 + self.offset):-self.offset][::-1]
             else:
                 last_messages = self.messages[-8:][::-1]
-            print(last_messages)
             for i in range(len(last_messages)):
-                if last_messages[i]["sender"] == self.user:
+                if last_messages[i]["from"] == self.login:
                     message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i]["text"])
                 else:
                     message = TextField((100, 100, 100), (screen_width // 2, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i]["text"])
@@ -219,7 +219,7 @@ class Chat():
     
     def send(self, message):
         self.offset = 1
-        self.messages.append({"text": message, "sender": self.user})
+        self.messages.append({"text": message, "from": self.login, "to": self.to, "time": time.time()})
         network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [chats[chat].title, self.messages[-1]]})
         input.text = ""
 
@@ -249,6 +249,15 @@ def create():
     i = 1 
     for key in messages.keys():
         chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, list(messages[key])))
+        i += 1
+    sort_chats()
+
+def sort_chats():
+    global chats
+    chats = sorted(chats, key=lambda chat: chat.messages[-1]["time"], reverse=True)
+    i = 1 
+    for chat in chats:
+        chat.to_chat.position = pygame.Rect(screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10)
         i += 1
 
 chat = None
@@ -421,6 +430,7 @@ while running:
                     modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели сообщение")
                 else:
                     chats[chat].send(input.text)
+                    sort_chats()
 
             input.draw(screen)
             send.draw(screen)
@@ -466,12 +476,14 @@ while running:
                     if chat.title == message["chat"]:
                         chat.messages.append(message["message"])
                         break
+                sort_chats()
             elif message["command"] == "new chat":
                 messages[message["chat"]] = []
                 data["messages"] = messages
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)
                 chats.append(Chat(data["login"], message["chat"], message["chat"], (screen_width // 10, screen_height // 10 * (len(messages.keys()) - 1), screen_width // 5 * 2, screen_height // 10), font, []))
+                sort_chats()
         except BlockingIOError:
             pass
         
