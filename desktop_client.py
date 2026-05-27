@@ -205,6 +205,7 @@ class Chat():
                 last_messages = self.messages[-(8 + self.offset):-self.offset][::-1]
             else:
                 last_messages = self.messages[-8:][::-1]
+            print(last_messages)
             for i in range(len(last_messages)):
                 if last_messages[i]["sender"] == self.user:
                     message = TextField((20, 22, 28), (screen_width // 5 * 3, screen_height // 10 * (8 - i), screen_width // 5 * 2, screen_height // 10), font, last_messages[i]["text"])
@@ -247,7 +248,7 @@ def create():
     global chats
     i = 1 
     for key in messages.keys():
-        chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, messages[key]))
+        chats.append(Chat(data["login"], key, key, (screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10), font, list(messages[key])))
         i += 1
 
 chat = None
