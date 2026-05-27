@@ -168,15 +168,23 @@ class ChatButton(PositionButton):
         super().__init__(pStandart_color, pClick_color, pPress_color, pPosition, pFont, pTitle)
         self.message = pMessage
         self.message_font = pygame.font.SysFont(None, 30)
+        self.new = False
 
     def update(self, events):
         super().update(events)
+        if self.pressed and self.new:
+            self.new = False
 
     def draw(self, screen):
         super().draw(screen)
         text = self.message_font.render(self.message, True, (255, 255, 255))
         text_rect = text.get_rect(center=self.position.center, bottom=self.position.bottom - 10)
         screen.blit(text, text_rect)
+        if self.new:
+            rect = pygame.Rect(0, 0, 80, 60)
+            rect.centery = self.position.centery
+            rect.right = self.position.right
+            pygame.draw.rect(screen, (255, 0, 0), rect)
 
 class Chat():
     def __init__(self, pLogin, pTitle, pOpponent, pPosition, pFont, pMessages):
@@ -492,6 +500,8 @@ while running:
                     if chat.title == message["chat"]:
                         chat.messages.append(message["message"])
                         chat.to_chat.message = message["message"]["text"]
+                        if not chat.opened:
+                            chat.to_chat.new = True
                         break
                 sort_chats()
             elif message["command"] == "new chat":
