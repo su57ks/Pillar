@@ -162,6 +162,21 @@ class PositionButton(Button):
 
     def draw(self, screen):
         super().draw(screen)
+    
+class ChatButton(PositionButton):
+    def __init__(self, pStandart_color, pClick_color, pPress_color, pPosition, pFont, pTitle, pMessage):
+        super().__init__(pStandart_color, pClick_color, pPress_color, pPosition, pFont, pTitle)
+        self.message = pMessage
+        self.message_font = pygame.font.SysFont(None, 30)
+
+    def update(self, events):
+        super().update(events)
+
+    def draw(self, screen):
+        super().draw(screen)
+        text = self.message_font.render(self.message, True, (255, 255, 255))
+        text_rect = text.get_rect(center=self.position.center, bottom=self.position.bottom - 10)
+        screen.blit(text, text_rect)
 
 class Chat():
     def __init__(self, pLogin, pTitle, pOpponent, pPosition, pFont, pMessages):
@@ -174,7 +189,7 @@ class Chat():
         self.position = pygame.Rect(pPosition)
         self.font = pFont
         self.offset = 1
-        self.to_chat = PositionButton((45, 50, 60), (75, 80, 95), (200, 200, 200), pygame.Rect(pPosition), pFont, pTitle)
+        self.to_chat = ChatButton((45, 50, 60), (75, 80, 95), (200, 200, 200), pygame.Rect(pPosition), pFont, pTitle, self.messages[-1]["text"])
         self.head = TextField((35, 40, 50), (screen_width // 2, 0, screen_width // 5 * 3, screen_height // 10), font, pTitle)
 
     def update(self, events):
@@ -429,6 +444,7 @@ while running:
                     modal_showing = True
                     modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели сообщение")
                 else:
+                    chats[chat].to_chat.message = input.text
                     chats[chat].send(input.text)
                     sort_chats()
 
@@ -475,6 +491,7 @@ while running:
                 for chat in chats:
                     if chat.title == message["chat"]:
                         chat.messages.append(message["message"])
+                        chat.to_chat.message = message["message"]["text"]
                         break
                 sort_chats()
             elif message["command"] == "new chat":
