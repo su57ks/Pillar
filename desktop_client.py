@@ -174,10 +174,12 @@ class ChatButton(PositionButton):
         super().update(events)
         if self.pressed and self.new:
             self.new = False
+        if not self.message.get("readed", "") and self.message.get("from", "") != data["login"]:
+            self.new = True 
 
     def draw(self, screen):
         super().draw(screen)
-        text = self.message_font.render(self.message, True, (255, 255, 255))
+        text = self.message_font.render(self.message.get("text", ""), True, (255, 255, 255))
         text_rect = text.get_rect(center=self.position.center, bottom=self.position.bottom - 10)
         screen.blit(text, text_rect)
         if self.new:
@@ -197,7 +199,7 @@ class Chat():
         self.position = pygame.Rect(pPosition)
         self.font = pFont
         self.offset = 1
-        self.to_chat = ChatButton((45, 50, 60), (75, 80, 95), (200, 200, 200), pygame.Rect(pPosition), pFont, pTitle, self.messages[-1]["text"])
+        self.to_chat = ChatButton((45, 50, 60), (75, 80, 95), (200, 200, 200), pygame.Rect(pPosition), pFont, pTitle, self.messages[-1] if len(self.messages) != 0 else {})
         self.head = TextField((35, 40, 50), (screen_width // 2, 0, screen_width // 5 * 3, screen_height // 10), font, pTitle)
 
     def update(self, events):
@@ -207,6 +209,13 @@ class Chat():
             self.clicked = True
         if self.to_chat.pressed:
             self.opened = True
+            if self.to_chat.clicked:
+                for message in self.messages[::-1]:
+                    if not message["readed"]:
+                        message["readed"] = True
+                    else:
+                        break
+                network({"version": 1, "command": "read chat", "login": self.login, "password": data["password"], "chat": self.to})
         else:
             self.opened = False
         mouse_pos = pygame.mouse.get_pos()
@@ -242,7 +251,8 @@ class Chat():
     
     def send(self, message):
         self.offset = 1
-        self.messages.append({"text": message, "from": self.login, "to": self.to, "time": time.time()})
+        self.messages.append({"text": message, "from": self.login, "to": self.to, "time": time.time(), "readed": False})
+        self.to_chat.message = self.messages[-1]
         network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [chats[chat].title, self.messages[-1]]})
         input.text = ""
 
@@ -277,7 +287,7 @@ def create():
 
 def sort_chats():
     global chats
-    chats = sorted(chats, key=lambda chat: chat.messages[-1]["time"], reverse=True)
+    chats = sorted(chats, key=lambda chat: chat.messages[-1]["time"] if len(chat.messages) != 0 else 0, reverse=True)
     i = 1 
     for chat in chats:
         chat.to_chat.position = pygame.Rect(screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10)
@@ -452,7 +462,6 @@ while running:
                     modal_showing = True
                     modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели сообщение")
                 else:
-                    chats[chat].to_chat.message = input.text
                     chats[chat].send(input.text)
                     sort_chats()
 
@@ -564,7 +573,9 @@ while running:
                 with codecs.open("data.json", "w", "utf_8_sig") as f:
                     json.dump(data, f)   
                 place = "LOGIN"
+                chat = None
             elif remove_account.clicked:
+                chat = None
                 network({"version": 1, "command": "remove account", "login": data["login"], "password": data["password"]})
                 messages = {}
                 data["login"] = ""

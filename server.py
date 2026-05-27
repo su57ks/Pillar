@@ -3,6 +3,7 @@ import json
 import codecs
 import socket
 import select
+import traceback
 
 connected_clients = {}
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -20,7 +21,7 @@ else:
 
 server.setblocking(False)
 sockets_list = [server]
-buffers = {}  # {socket: ""}
+buffers = {} 
 
 while True:
     ready_sockets, _, _ = select.select(sockets_list, [], [], 0.1)
@@ -36,8 +37,6 @@ while True:
             try:
                 chunk = sock.recv(4096).decode()
                 if not chunk:
-                    # клиент отключился
-                    # Удаляем из connected_clients
                     for login, s in list(connected_clients.items()):
                         if s == sock:
                             del connected_clients[login]
@@ -49,7 +48,7 @@ while True:
                 
                 buffers[sock] += chunk
                 
-                # Разбираем буфер (формат: "длина пробел json")
+
                 while True:
                     space = buffers[sock].find(" ")
                     if space == -1:
@@ -61,7 +60,6 @@ while True:
                             buffers[sock] = buffers[sock][space+1+msg_len:]
                             message = json.loads(json_str)
                             
-                            # === ТВОЯ ЛОГИКА ОБРАБОТКИ ===
                             print(f"Получено сообщение: {message}")
                             
                             if message["command"] == "ping":
@@ -90,6 +88,7 @@ while True:
                                         data[message["login"]] = {}
                                         data[message["login"]]["password"] = message["password"]
                                         data[message["login"]]["messages"] = {}
+                                        data[message["login"]]["unread chat"] = []
                                         with codecs.open("server_data.json", "w", "utf_8_sig") as f:
                                             json.dump(data, f)
                                     else:
@@ -109,11 +108,13 @@ while True:
                                         lst.append(message["messages"][1])
                                         data[message["messages"][0]]["messages"][message["login"]] = lst
 
+                                        if message["login"] not in data[message["messages"][0]]["unread chat"]:
+                                            data[message["messages"][0]]["unread chat"].append(message["login"])
+
                                         with codecs.open("server_data.json", "w", "utf_8_sig") as f:
                                             json.dump(data, f)
                                         response = {"status": 200, "message": "Updated successful"}
                                         
-                                        # push получателю
                                         print(connected_clients)
                                         print(message["messages"][0])
                                         if message["messages"][0] in connected_clients:
@@ -182,7 +183,23 @@ while True:
                                             json.dump(data, f)
                                         response = {"status": 200, "message": "Removed successful"}
                                 
-                                # Отправляем ответ
+                                elif message["command"] == "read chat":
+                                    if user == None:
+                                        response = {"status": 404, "message": "No account"}
+                                    elif user["password"] != message["password"]:
+                                        response = {"status": 422, "message": "Invalid password"}
+                                    else:
+                                        try:
+                                            data[message["login"]]["unread chat"].remove(message["chat"])
+                                            for msg in data[message["login"]]["messages"][message["chat"]]:
+                                                if not msg["readed"]:
+                                                    msg["readed"] = True
+                                            with codecs.open("server_data.json", "w", "utf_8_sig") as f:
+                                                json.dump(data, f)
+                                            response = {"status": 200, "message": "Updated successful"}
+                                        except Exception as e:
+                                            print(traceback.format_exc())
+                                
                                 response_json = json.dumps(response)
                                 sock.send(f"{len(response_json)} {response_json}".encode())
                             
