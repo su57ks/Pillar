@@ -56,9 +56,10 @@ class TextField():
         mid_text = self.text
         new_text = self.text
         text = self.font.render(new_text, True, (255, 255, 255))
-        pygame.draw.rect(screen, color, self.position, border_radius=0)
         if len(self.text) > 50:
             new_text = []
+            text_renders = []
+            texts = []
             for i in range(len(self.text) // 50 + 1):
                 new_text.append(mid_text[:50])
                 mid_text = mid_text[50:]
@@ -67,8 +68,17 @@ class TextField():
                 text_rect.left = self.position.left + 10
                 text_rect.top = self.position.top + 30 * i
                 text = self.font.render(new_text[i], True, (255, 255, 255))
+                texts.append(text)
+                text_renders.append(text_rect)
+
+            pygame.draw.rect(screen, color, pygame.Rect(self.position.x,
+                                                        self.position.y, 
+                                                        max([text.width for text in text_renders]),
+                                                        text_renders[-1].bottom - text_renders[0].top, border_radius=0))
+            for text, text_rect in zip(texts, text_renders):
                 screen.blit(text, text_rect)
         else:
+            pygame.draw.rect(screen, color, self.position)
             text_rect = text.get_rect(midleft=self.position.midleft)
             text_rect.left = self.position.left + 10
             screen.blit(text, text_rect)
@@ -485,7 +495,6 @@ while running:
                     modal_showing = True
                     modal = Modal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы не ввели сообщение")
                 else:
-                    chats[chat].to_chat.message = input.text
                     chats[chat].send(input.text)
                     sort_chats()
 
