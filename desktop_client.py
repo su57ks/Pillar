@@ -140,6 +140,29 @@ class Modal():
         text_rect = self.text.get_rect(center=self.position.center)
         screen.blit(self.text, text_rect)
 
+class SelectModal(Modal):
+    def __init__(self, pColor, pPosition, pFont, pText):
+        super().__init__(pColor, pPosition, pFont, pText)
+        self.yes = Button((100, 100, 120), (0, 255, 0), (pPosition[0] + pPosition[2] // 3, pPosition[1] + screen_height // 10 - 45, 30, 30), self.font, "Да")
+        self.no = Button((100, 100, 120), (255, 0, 0), (pPosition[0] + pPosition[2] // 3 * 2, pPosition[1] + screen_height // 10 - 45, 30, 30), self.font, "Нет")
+        self.answer = None
+
+    def update(self, events):
+        super().update(events)
+        self.yes.update(events)
+        self.no.update(events)
+        if self.yes.clicked:
+            self.answer = True
+            self.showed = False
+        elif self.no.clicked:
+            self.answer = False
+            self.showed = False
+    
+    def draw(self, screen):
+        super().draw(screen)
+        self.yes.draw(screen)
+        self.no.draw(screen)
+
 class PositionButton(Button):
     def __init__(self, pStandart_color, pClick_color, pPress_color, pPosition, pFont, pText):
         super().__init__(pStandart_color, pClick_color, pPosition, pFont, pText)
@@ -168,15 +191,25 @@ class ChatButton(PositionButton):
         super().__init__(pStandart_color, pClick_color, pPress_color, pPosition, pFont, pTitle)
         self.message = pMessage
         self.message_font = pygame.font.SysFont(None, 30)
+        self.new = False
 
     def update(self, events):
         super().update(events)
+        if self.pressed and self.new:
+            self.new = False
+        if not self.message.get("readed", "") and self.message.get("from", "") != data["login"]:
+            self.new = True 
 
     def draw(self, screen):
         super().draw(screen)
-        text = self.message_font.render(self.message, True, (255, 255, 255))
+        text = self.message_font.render(self.message.get("text", ""), True, (255, 255, 255))
         text_rect = text.get_rect(center=self.position.center, bottom=self.position.bottom - 10)
         screen.blit(text, text_rect)
+        if self.new:
+            rect = pygame.Rect(0, 0, 80, 60)
+            rect.centery = self.position.centery
+            rect.right = self.position.right
+            pygame.draw.rect(screen, (255, 0, 0), rect)
 
 class Chat():
     def __init__(self, pLogin, pTitle, pOpponent, pPosition, pFont, pMessages):
@@ -189,7 +222,7 @@ class Chat():
         self.position = pygame.Rect(pPosition)
         self.font = pFont
         self.offset = 1
-        self.to_chat = ChatButton((45, 50, 60), (75, 80, 95), (200, 200, 200), pygame.Rect(pPosition), pFont, pTitle, self.messages[-1]["text"])
+        self.to_chat = ChatButton((45, 50, 60), (75, 80, 95), (200, 200, 200), pygame.Rect(pPosition), pFont, pTitle, self.messages[-1] if len(self.messages) != 0 else {})
         self.head = TextField((35, 40, 50), (screen_width // 2, 0, screen_width // 5 * 3, screen_height // 10), font, pTitle)
 
     def update(self, events):
@@ -199,6 +232,13 @@ class Chat():
             self.clicked = True
         if self.to_chat.pressed:
             self.opened = True
+            if self.to_chat.clicked:
+                for message in self.messages[::-1]:
+                    if not message["readed"]:
+                        message["readed"] = True
+                    else:
+                        break
+                network({"version": 1, "command": "read chat", "login": self.login, "password": data["password"], "chat": self.to})
         else:
             self.opened = False
         mouse_pos = pygame.mouse.get_pos()
@@ -234,7 +274,8 @@ class Chat():
     
     def send(self, message):
         self.offset = 1
-        self.messages.append({"text": message, "from": self.login, "to": self.to, "time": time.time()})
+        self.messages.append({"text": message, "from": self.login, "to": self.to, "time": time.time(), "readed": False})
+        self.to_chat.message = self.messages[-1]
         network({"version": 1, "command": "update messages", "login": data["login"], "password": data["password"], "messages": [chats[chat].title, self.messages[-1]]})
         input.text = ""
 
@@ -269,7 +310,7 @@ def create():
 
 def sort_chats():
     global chats
-    chats = sorted(chats, key=lambda chat: chat.messages[-1]["time"], reverse=True)
+    chats = sorted(chats, key=lambda chat: chat.messages[-1]["time"] if len(chat.messages) != 0 else 0, reverse=True)
     i = 1 
     for chat in chats:
         chat.to_chat.position = pygame.Rect(screen_width // 10, screen_height // 10 * (i - 1), screen_width // 5 * 2, screen_height // 10)
@@ -492,6 +533,8 @@ while running:
                     if chat.title == message["chat"]:
                         chat.messages.append(message["message"])
                         chat.to_chat.message = message["message"]["text"]
+                        if not chat.opened:
+                            chat.to_chat.new = True
                         break
                 sort_chats()
             elif message["command"] == "new chat":
@@ -539,22 +582,59 @@ while running:
             to_settings.pressed = True
             user.draw(screen)
             leave.update(events)
+            to_search.draw(screen)
+            to_settings.draw(screen)
+            to_chats.draw(screen)
             remove_account.update(events)
             change_server.update(events)
             if leave.clicked:
-                messages = {}
-                sock.close()
-                sock = socket.socket() 
-                sock.connect((data["ip"], data["port"]))
-                sock.setblocking(False)
-                data["login"] = ""
-                data["password"] = ""
-                data["messages"] = {}
-                chats = []
-                with codecs.open("data.json", "w", "utf_8_sig") as f:
-                    json.dump(data, f)   
-                place = "LOGIN"
+                screenshot = screen.copy()
+                selecting = True
+                answer = None
+                select = SelectModal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы уверены?")
+                while selecting:
+                    clock.tick(30)
+                    events = pygame.event.get()
+                    screen.blit(screenshot, (0, 0))
+                    select.update(events)
+                    for event in events:
+                        if event.type == pygame.QUIT:
+                            running = False
+                            selecting = False
+
+                    close.update(events)
+                    if close.clicked:
+                        running = False
+                        selecting = False
+                    close.draw(screen)
+
+                    iconify_button.update(events)
+                    if iconify_button.clicked:
+                        pygame.display.iconify()
+                    iconify_button.draw(screen)
+                    if not select.showed:
+                        selecting = False
+                        if select.answer != None:
+                            answer = select.answer
+                    else:
+                        select.draw(screen)
+                    pygame.display.flip()
+                if answer == True:
+                    messages = {}
+                    sock.close()
+                    sock = socket.socket() 
+                    sock.connect((data["ip"], data["port"]))
+                    sock.setblocking(False)
+                    data["login"] = ""
+                    data["password"] = ""
+                    data["messages"] = {}
+                    chats = []
+                    with codecs.open("data.json", "w", "utf_8_sig") as f:
+                        json.dump(data, f)   
+                    place = "LOGIN"
+                    chat = None
             elif remove_account.clicked:
+                chat = None
                 network({"version": 1, "command": "remove account", "login": data["login"], "password": data["password"]})
                 messages = {}
                 data["login"] = ""
@@ -574,9 +654,6 @@ while running:
                 leave.draw(screen)
                 remove_account.draw(screen)
                 change_server.draw(screen)
-        to_search.draw(screen)
-        to_settings.draw(screen)
-        to_chats.draw(screen)
     elif place == "REGISTRATION":
         to_login.update(events)
         if to_login.clicked:
