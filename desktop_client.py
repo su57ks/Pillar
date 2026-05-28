@@ -140,6 +140,29 @@ class Modal():
         text_rect = self.text.get_rect(center=self.position.center)
         screen.blit(self.text, text_rect)
 
+class SelectModal(Modal):
+    def __init__(self, pColor, pPosition, pFont, pText):
+        super().__init__(pColor, pPosition, pFont, pText)
+        self.yes = Button((100, 100, 120), (0, 255, 0), (pPosition[0] + pPosition[2] // 3, pPosition[1] + screen_height // 10 - 45, 30, 30), self.font, "Да")
+        self.no = Button((100, 100, 120), (255, 0, 0), (pPosition[0] + pPosition[2] // 3 * 2, pPosition[1] + screen_height // 10 - 45, 30, 30), self.font, "Нет")
+        self.answer = None
+
+    def update(self, events):
+        super().update(events)
+        self.yes.update(events)
+        self.no.update(events)
+        if self.yes.clicked:
+            self.answer = True
+            self.showed = False
+        elif self.no.clicked:
+            self.answer = False
+            self.showed = False
+    
+    def draw(self, screen):
+        super().draw(screen)
+        self.yes.draw(screen)
+        self.no.draw(screen)
+
 class PositionButton(Button):
     def __init__(self, pStandart_color, pClick_color, pPress_color, pPosition, pFont, pText):
         super().__init__(pStandart_color, pClick_color, pPosition, pFont, pText)
@@ -558,22 +581,57 @@ while running:
             to_settings.pressed = True
             user.draw(screen)
             leave.update(events)
+            to_search.draw(screen)
+            to_settings.draw(screen)
+            to_chats.draw(screen)
             remove_account.update(events)
             change_server.update(events)
             if leave.clicked:
-                messages = {}
-                sock.close()
-                sock = socket.socket() 
-                sock.connect((data["ip"], data["port"]))
-                sock.setblocking(False)
-                data["login"] = ""
-                data["password"] = ""
-                data["messages"] = {}
-                chats = []
-                with codecs.open("data.json", "w", "utf_8_sig") as f:
-                    json.dump(data, f)   
-                place = "LOGIN"
-                chat = None
+                screenshot = screen.copy()
+                selecting = True
+                answer = None
+                select = SelectModal((55, 60, 75), (screen_width // 2 - 200, screen_height // 2 - 50, 400, 100), font, "Вы уверены?")
+                while selecting:
+                    clock.tick(30)
+                    events = pygame.event.get()
+                    screen.blit(screenshot, (0, 0))
+                    select.update(events)
+                    for event in events:
+                        if event.type == pygame.QUIT:
+                            running = False
+                            selecting = False
+
+                    close.update(events)
+                    if close.clicked:
+                        running = False
+                        selecting = False
+                    close.draw(screen)
+
+                    iconify_button.update(events)
+                    if iconify_button.clicked:
+                        pygame.display.iconify()
+                    iconify_button.draw(screen)
+                    if not select.showed:
+                        selecting = False
+                        if select.answer != None:
+                            answer = select.answer
+                    else:
+                        select.draw(screen)
+                    pygame.display.flip()
+                if answer == True:
+                    messages = {}
+                    sock.close()
+                    sock = socket.socket() 
+                    sock.connect((data["ip"], data["port"]))
+                    sock.setblocking(False)
+                    data["login"] = ""
+                    data["password"] = ""
+                    data["messages"] = {}
+                    chats = []
+                    with codecs.open("data.json", "w", "utf_8_sig") as f:
+                        json.dump(data, f)   
+                    place = "LOGIN"
+                    chat = None
             elif remove_account.clicked:
                 chat = None
                 network({"version": 1, "command": "remove account", "login": data["login"], "password": data["password"]})
@@ -595,9 +653,6 @@ while running:
                 leave.draw(screen)
                 remove_account.draw(screen)
                 change_server.draw(screen)
-        to_search.draw(screen)
-        to_settings.draw(screen)
-        to_chats.draw(screen)
     elif place == "REGISTRATION":
         to_login.update(events)
         if to_login.clicked:
