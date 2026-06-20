@@ -49,7 +49,6 @@ fun MainScreen(toSettings: () -> Unit = {}, toChat: () -> Unit = {}) {
                 Button(
                     onClick = {
                         toSettings()
-                        Log.d("SETTINGS", "clicked")
                               },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Gray
