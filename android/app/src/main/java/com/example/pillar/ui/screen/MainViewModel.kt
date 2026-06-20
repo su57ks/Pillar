@@ -20,4 +20,8 @@ class MainViewModel: ViewModel() {
     }
     private val _selectedId = MutableStateFlow(0)
     val selectedId: StateFlow<Int> = _selectedId.asStateFlow()
+
+    fun updateId(id: Int){
+        _selectedId.value = id
+    }
 }

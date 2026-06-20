@@ -27,10 +27,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainScreen(toSettings: () -> Unit = {}, toChat: () -> Unit = {}) {
+fun MainScreen(toSettings: () -> Unit = {}, toChat: () -> Unit = {}, viewModel: MainViewModel = viewModel()) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -58,8 +59,11 @@ fun MainScreen(toSettings: () -> Unit = {}, toChat: () -> Unit = {}) {
                 }
             }
         }
+        //val keys: Set<String> = viewModel.userDict.keys
+        //for (id in keys){
             item { Chat("Aizen", "Good day", "1h", 0, toChat) }
             item { HorizontalDivider(color = Color.Black) }
+        //}
     }
 }
 
