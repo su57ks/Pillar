@@ -1,6 +1,7 @@
 package com.example.pillar.ui.screen
 
 import android.graphics.drawable.Icon
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,6 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BadgeDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,7 +30,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(toSettings: () -> Unit = {}, toChat: () -> Unit = {}) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -33,8 +38,28 @@ fun MainScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        stickyHeader { Text(text = "su57ks") }
-            item { Chat("Aizen", "Good day", "1h", 0, {}) }
+        stickyHeader {
+            Text(text = "su57ks")
+            Row() {
+                Button(
+                    onClick = {}
+                ) {
+                    Text(text = "Чаты")
+                }
+                Button(
+                    onClick = {
+                        toSettings()
+                        Log.d("SETTINGS", "clicked")
+                              },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Gray
+                    )
+                ) {
+                    Text(text = "Настройки")
+                }
+            }
+        }
+            item { Chat("Aizen", "Good day", "1h", 0, toChat) }
             item { HorizontalDivider(color = Color.Black) }
     }
 }
