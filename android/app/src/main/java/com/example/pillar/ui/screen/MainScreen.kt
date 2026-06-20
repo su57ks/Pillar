@@ -3,6 +3,7 @@ package com.example.pillar.ui.screen
 import android.graphics.drawable.Icon
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,8 +34,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         stickyHeader { Text(text = "su57ks") }
-        item { Chat("Aizen", "Good day", "1h", 0) }
-        item { HorizontalDivider(color = Color.Black)}
+            item { Chat("Aizen", "Good day", "1h", 0, {}) }
+            item { HorizontalDivider(color = Color.Black) }
     }
 }
 
@@ -43,13 +46,13 @@ private fun MainScreenPrev() {
 }
 
 @Composable
-fun Chat(name: String, message: String, time: String, unread: Int) {
+fun Chat(name: String, message: String, time: String, unread: Int, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .background(Color.LightGray)
             .fillMaxWidth()
             .padding(5.dp)
-
+            .clickable{onClick()}
     ) {
         Column() {
             Row(
