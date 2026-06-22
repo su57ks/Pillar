@@ -25,10 +25,17 @@ class MainViewModel : ViewModel() {
                     messages = listOf(
                         Message(
                             time = 3600000,
-                            text = "Привет! Как дела?",
+                            text = "Привет! Как дела? У меня все круто, вот недавно с Гином разговаривал",
                             read = true,
                             senderId = 1,
                             receiverId = 2
+                        ),
+                        Message(
+                            time = 3600000,
+                            text = "Плохо",
+                            read = true,
+                            senderId = 2,
+                            receiverId = 1
                         )
                     )
                 )
@@ -52,4 +59,13 @@ class MainViewModel : ViewModel() {
         Log.d("UPDATE ID", _selectedId.value.toString())
         Log.d("UPDATE ID", selectedId.value.toString())
     }
+
+    private val _me = MutableStateFlow(
+        User(
+            id = 2,
+            name = "Orihime",
+            username = "Orihime"
+        )
+    )
+    val me: StateFlow<User> = _me.asStateFlow()
 }
