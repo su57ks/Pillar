@@ -19,10 +19,12 @@ import androidx.compose.ui.Alignment.Companion
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pillar.data.Message
+import com.example.pillar.utils.messageTime
 
 @Composable
 fun ChatScreen(viewModel: MainViewModel = viewModel()) {
@@ -31,7 +33,6 @@ fun ChatScreen(viewModel: MainViewModel = viewModel()) {
     val chatDict by viewModel.chatDict.collectAsState()
     val chat = chatDict.chatDict[id]
     if (chat != null) {
-        Text(text = chat.user.name)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -43,6 +44,7 @@ fun ChatScreen(viewModel: MainViewModel = viewModel()) {
                 Message(message = message, viewModel = viewModel)
             }
         }
+        Text(text = chat.user.name)
     }
 }
 
@@ -79,9 +81,15 @@ fun Message(message: Message, viewModel: MainViewModel) {
                 .padding(10.dp)
 
         ) {
-            Text(
-                text = message.text
-            )
+            Column() {
+                Text(
+                    text = message.text
+                )
+                Text(
+                    text = messageTime(message.time),
+                    modifier = Modifier.align(Alignment.End)
+                )
+            }
         }
     }
 }
