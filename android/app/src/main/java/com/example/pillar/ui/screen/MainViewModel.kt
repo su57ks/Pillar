@@ -18,7 +18,7 @@ class MainViewModel: ViewModel() {
                     id = 1,
                     name = "Aizen",
                     username = "Aizen",
-                    messages = listOf(
+                        messages = listOf(
                         Message(
                             time = 3600000,
                             text = "Привет! Как дела?",
@@ -44,5 +44,7 @@ class MainViewModel: ViewModel() {
 
     fun updateId(id: Int){
         _selectedId.value = id
+        Log.d("UPDATE ID", _selectedId.value.toString())
+        Log.d("UPDATE ID", selectedId.value.toString())
     }
 }

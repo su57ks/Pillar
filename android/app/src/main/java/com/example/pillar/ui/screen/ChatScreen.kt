@@ -1,5 +1,6 @@
 package com.example.pillar.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun ChatScreen(viewModel: MainViewModel = viewModel()) {
     val id by viewModel.selectedId.collectAsState()
+    Log.d("UPDATE ID", id.toString())
     val userDict by viewModel.userDict.collectAsState()
     val user = userDict.userDict[id]
 

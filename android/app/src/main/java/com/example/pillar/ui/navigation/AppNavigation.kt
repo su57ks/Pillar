@@ -24,6 +24,8 @@ fun AppNavHost() {
             viewModel = viewModel
         ) }
         composable("settings"){ SettingsScreen()}
-        composable("chat") { ChatScreen() }
+        composable("chat") { ChatScreen(
+            viewModel = viewModel
+        ) }
     }
 }
