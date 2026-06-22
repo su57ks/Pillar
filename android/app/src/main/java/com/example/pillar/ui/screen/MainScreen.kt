@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pillar.data.UserDict
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -86,7 +87,10 @@ fun Chat(userDict: UserDict, id: Int, onClick: () -> Unit, viewModel: MainViewMo
                 .background(Color.LightGray)
                 .fillMaxWidth()
                 .padding(5.dp)
-                .clickable { onClick() }
+                .clickable {
+                    viewModel.updateId(id)
+                    onClick()
+                }
         ) {
             Column() {
                 Row(

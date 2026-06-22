@@ -1,6 +1,8 @@
 package com.example.pillar.ui.screen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.pillar.data.Message
 import com.example.pillar.data.User
 import com.example.pillar.data.UserDict
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +17,16 @@ class MainViewModel: ViewModel() {
                 1 to User(
                     id = 1,
                     name = "Aizen",
-                    username = "Aizen"
+                    username = "Aizen",
+                    messages = listOf(
+                        Message(
+                            time = 3600000,
+                            text = "Привет! Как дела?",
+                            read = true,
+                            senderId = 1,
+                            receiverId = 2
+                        )
+                    )
                 )
             )
         )
