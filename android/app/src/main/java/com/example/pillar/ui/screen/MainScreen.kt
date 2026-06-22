@@ -1,7 +1,5 @@
 package com.example.pillar.ui.screen
 
-import android.graphics.drawable.Icon
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,11 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.BadgeDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -30,14 +24,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.pillar.data.UserDict
-import kotlinx.coroutines.delay
+import com.example.pillar.data.ChatDict
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainScreen(toSettings: () -> Unit = {}, toChat: () -> Unit = {}, viewModel: MainViewModel = viewModel()) {
-    val userDict by viewModel.userDict.collectAsState()
-    val userIds = userDict.userDict.keys.toList()
+    val chatDict by viewModel.chatDict.collectAsState()
+    val userIds = chatDict.chatDict.keys.toList()
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -66,7 +59,7 @@ fun MainScreen(toSettings: () -> Unit = {}, toChat: () -> Unit = {}, viewModel: 
             }
         }
         for (id in userIds) {
-            item { Chat(userDict = userDict, id = id, onClick = toChat, viewModel = viewModel) }
+            item { Chat(chatDict = chatDict, id = id, onClick = toChat, viewModel = viewModel) }
             item { HorizontalDivider(color = Color.Black) }
         }
     }
@@ -79,9 +72,9 @@ private fun MainScreenPrev() {
 }
 
 @Composable
-fun Chat(userDict: UserDict, id: Int, onClick: () -> Unit, viewModel: MainViewModel) {
-    val user = userDict.userDict[id]
-    if (user != null) {
+fun Chat(chatDict: ChatDict, id: Int, onClick: () -> Unit, viewModel: MainViewModel) {
+    val chat = chatDict.chatDict[id]
+    if (chat != null) {
         Row(
             modifier = Modifier
                 .background(Color.LightGray)
@@ -98,19 +91,19 @@ fun Chat(userDict: UserDict, id: Int, onClick: () -> Unit, viewModel: MainViewMo
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = user.name,
+                        text = chat.user.name,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.fillMaxWidth(0.7f)
                     )
-                    Text(user.messages.lastOrNull()?.time?.toString() ?: "")
+                    Text(chat.messages.lastOrNull()?.time?.toString() ?: "")
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        user.messages.lastOrNull()?.text ?: "",
+                        chat.messages.lastOrNull()?.text ?: "",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.fillMaxWidth(0.6f)

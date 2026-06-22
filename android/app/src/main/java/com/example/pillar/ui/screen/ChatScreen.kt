@@ -6,7 +6,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -14,13 +13,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun ChatScreen(viewModel: MainViewModel = viewModel()) {
     val id by viewModel.selectedId.collectAsState()
     Log.d("UPDATE ID", id.toString())
-    val userDict by viewModel.userDict.collectAsState()
-    val user = userDict.userDict[id]
+    val chatDict by viewModel.chatDict.collectAsState()
+    val chat = chatDict.chatDict[id]
 
-    if (user != null) {
+    if (chat != null) {
         Column() {
-            Text(text = user.name)
-            Text(text = user.messages.lastOrNull()?.text ?: "")
+            Text(text = chat.user.name)
+            Text(text = chat.messages.lastOrNull()?.text ?: "")
         }
     }
 }
