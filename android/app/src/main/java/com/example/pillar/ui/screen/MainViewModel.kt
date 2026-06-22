@@ -9,7 +9,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class MainViewModel: ViewModel() {
-    private val _userDict = MutableStateFlow(UserDict())
+    private val _userDict = MutableStateFlow(
+        UserDict(
+            userDict = mapOf(
+                1 to User(
+                    id = 1,
+                    name = "Aizen",
+                    username = "Aizen"
+                )
+            )
+        )
+    )
     val userDict: StateFlow<UserDict> = _userDict.asStateFlow()
 
     fun updateUser(userId: Int, userData: User) {

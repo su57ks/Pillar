@@ -21,6 +21,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,10 +30,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.pillar.data.UserDict
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainScreen(toSettings: () -> Unit = {}, toChat: () -> Unit = {}, viewModel: MainViewModel = viewModel()) {
+    val userDict by viewModel.userDict.collectAsState()
+    val userIds = userDict.userDict.keys.toList()
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -59,11 +64,10 @@ fun MainScreen(toSettings: () -> Unit = {}, toChat: () -> Unit = {}, viewModel: 
                 }
             }
         }
-        //val keys: Set<String> = viewModel.userDict.keys
-        //for (id in keys){
-            item { Chat("Aizen", "Good day", "1h", 0, toChat) }
+        for (id in userIds) {
+            item { Chat(userDict = userDict, id = id, onClick = toChat, viewModel = viewModel) }
             item { HorizontalDivider(color = Color.Black) }
-        //}
+        }
     }
 }
 
@@ -74,29 +78,39 @@ private fun MainScreenPrev() {
 }
 
 @Composable
-fun Chat(name: String, message: String, time: String, unread: Int, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .background(Color.LightGray)
-            .fillMaxWidth()
-            .padding(5.dp)
-            .clickable{onClick()}
-    ) {
-        Column() {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = name, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth(0.7f))
-                Text(time)
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(message, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth(0.6f))
-                if (unread != 0) {
-                    Text(unread.toString())
+fun Chat(userDict: UserDict, id: Int, onClick: () -> Unit, viewModel: MainViewModel) {
+    val user = userDict.userDict[id]
+    if (user != null) {
+        Row(
+            modifier = Modifier
+                .background(Color.LightGray)
+                .fillMaxWidth()
+                .padding(5.dp)
+                .clickable { onClick() }
+        ) {
+            Column() {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = user.name,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth(0.7f)
+                    )
+                    Text(user.messages.lastOrNull()?.time?.toString() ?: "")
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        user.messages.lastOrNull()?.text ?: "",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth(0.6f)
+                    )
                 }
             }
         }
