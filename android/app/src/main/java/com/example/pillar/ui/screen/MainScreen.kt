@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -31,14 +32,18 @@ import com.example.pillar.data.ChatDict
 fun MainScreen(toSettings: () -> Unit = {}, toChat: () -> Unit = {}, viewModel: MainViewModel = viewModel()) {
     val chatDict by viewModel.chatDict.collectAsState()
     val userIds = chatDict.chatDict.keys.toList()
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White),
-        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        stickyHeader {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(text = "su57ks")
             Row() {
                 Button(
@@ -49,7 +54,7 @@ fun MainScreen(toSettings: () -> Unit = {}, toChat: () -> Unit = {}, viewModel: 
                 Button(
                     onClick = {
                         toSettings()
-                              },
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Gray
                     )
@@ -58,9 +63,21 @@ fun MainScreen(toSettings: () -> Unit = {}, toChat: () -> Unit = {}, viewModel: 
                 }
             }
         }
-        for (id in userIds) {
-            item { Chat(chatDict = chatDict, id = id, onClick = toChat, viewModel = viewModel) }
-            item { HorizontalDivider(color = Color.Black) }
+
+        LazyColumn(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(
+                items = userIds
+            ) { id ->
+                Chat(
+                    chatDict = chatDict,
+                    id = id,
+                    onClick = toChat,
+                    viewModel = viewModel
+                )
+            }
         }
     }
 }
