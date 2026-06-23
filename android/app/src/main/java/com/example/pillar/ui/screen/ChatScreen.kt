@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -42,7 +44,7 @@ import com.example.pillar.data.Message
 import com.example.pillar.utils.messageTime
 
 @Composable
-fun ChatScreen(viewModel: MainViewModel = viewModel()) {
+fun ChatScreen(viewModel: MainViewModel = viewModel(), toMain: () -> Unit = {}) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val maxHeight = screenHeight * 0.05f
     var input by remember { mutableStateOf("") }
@@ -64,7 +66,27 @@ fun ChatScreen(viewModel: MainViewModel = viewModel()) {
             }
             Spacer(modifier = Modifier.height(maxHeight + 2.dp))
         }
-        Text(text = chat.user.name)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Green),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Button(
+                onClick = {
+                    viewModel.updateId(0)
+                    toMain()
+                }
+            ) {
+                Icon(
+                    Icons.Default.ArrowBack,
+                    contentDescription = ""
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(text = chat.user.name)
+        }
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Bottom,

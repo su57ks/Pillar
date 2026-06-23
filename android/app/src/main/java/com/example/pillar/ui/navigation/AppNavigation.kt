@@ -25,7 +25,8 @@ fun AppNavHost() {
         ) }
         composable("settings"){ SettingsScreen()}
         composable("chat") { ChatScreen(
-            viewModel = viewModel
+            viewModel = viewModel,
+            toMain = {nav.navigate("main")}
         ) }
     }
 }
