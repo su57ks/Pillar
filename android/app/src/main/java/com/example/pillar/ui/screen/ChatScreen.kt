@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -24,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,18 +57,35 @@ fun ChatScreen(viewModel: MainViewModel = viewModel(), toMain: () -> Unit = {}) 
     val chatDict by viewModel.chatDict.collectAsState()
     val chat = chatDict.chatDict[id]
     val me = viewModel.me.collectAsState().value.id
+
+    val listState = rememberLazyListState()
+    LaunchedEffect(chat?.messages?.size) {
+        if (chat?.messages?.isNotEmpty() ?: false) {
+            listState.animateScrollToItem(chat?.messages?.size ?: 0)
+        }
+    }
+
     if (chat != null) {
-        Column(
+        LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White),
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            for (message in chat.messages) {
+            item {
+                Spacer(modifier = Modifier.height(maxHeight + 2.dp))
+            }
+            items(
+                items = chat.messages
+            ) { message ->
                 Message(message = message, viewModel = viewModel)
             }
-            Spacer(modifier = Modifier.height(maxHeight + 2.dp))
+
+            item {
+                Spacer(modifier = Modifier.height(maxHeight + 2.dp))
+            }
         }
         Row(
             modifier = Modifier
