@@ -1,5 +1,6 @@
 package com.example.pillar.ui.screen
 
+import android.support.v4.os.ResultReceiver
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.pillar.data.Chat
@@ -48,7 +49,25 @@ class MainViewModel : ViewModel() {
         _chatDict.update { currentDict ->
             ChatDict(currentDict.chatDict + (chatId to chatData))
         }
+    }
 
+    fun newMessage(text: String, senderId: Int, time: Long, receiverId: Int){
+        _chatDict.update { currentDict ->
+            val chat = currentDict.chatDict[receiverId]
+            if (chat != null) {
+                val message = Message(
+                    receiverId = receiverId,
+                    senderId = senderId,
+                    time = time,
+                    text = text
+                )
+                val updatedMessages = chat.messages + message
+                val updatedChat = chat.copy(messages = updatedMessages)
+                ChatDict(currentDict.chatDict + (receiverId to updatedChat))
+            } else {
+                currentDict
+            }
+        }
     }
 
     private val _selectedId = MutableStateFlow(0)

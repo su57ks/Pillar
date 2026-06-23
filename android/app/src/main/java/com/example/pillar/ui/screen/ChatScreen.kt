@@ -50,6 +50,7 @@ fun ChatScreen(viewModel: MainViewModel = viewModel()) {
     Log.d("UPDATE ID", id.toString())
     val chatDict by viewModel.chatDict.collectAsState()
     val chat = chatDict.chatDict[id]
+    val me = viewModel.me.collectAsState().value.id
     if (chat != null) {
         Column(
             modifier = Modifier
@@ -86,7 +87,17 @@ fun ChatScreen(viewModel: MainViewModel = viewModel()) {
                     shape = RoundedCornerShape(20.dp)
                 )
                 Button(
-                    onClick = {}
+                    onClick = {
+                        if (input != "") {
+                            viewModel.newMessage(
+                                text = input,
+                                receiverId = id,
+                                senderId = me,
+                                time = 1
+                            )
+                            input = ""
+                        }
+                    }
                 ) {
                     Icon(
                         Icons.Default.PlayArrow,
