@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -66,56 +67,53 @@ fun ChatScreen(viewModel: MainViewModel = viewModel(), toMain: () -> Unit = {}) 
     }
 
     if (chat != null) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White),
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            item {
-                Spacer(modifier = Modifier.height(maxHeight + 2.dp))
-            }
-            items(
-                items = chat.messages
-            ) { message ->
-                Message(message = message, viewModel = viewModel)
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(maxHeight + 2.dp))
-            }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Green),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
-        ) {
-            Button(
-                onClick = {
-                    viewModel.updateId(0)
-                    toMain()
-                }
-            ) {
-                Icon(
-                    Icons.Default.ArrowBack,
-                    contentDescription = ""
-                )
-            }
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(text = chat.user.name)
-        }
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+
+            ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(0.95f)
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(Color.Green),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Button(
+                    onClick = {
+                        viewModel.updateId(0)
+                        toMain()
+                    }) {
+                    Icon(
+                        Icons.Default.ArrowBack, contentDescription = ""
+                    )
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = chat.user.name)
+            }
+
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(8f)
+                    .background(Color.White),
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(
+                    items = chat.messages
+                ) { message ->
+                    Message(message = message, viewModel = viewModel)
+                }
+
+            }
+
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
                     .background(Color.Green)
                     .clip(RoundedCornerShape(20.dp)),
                 verticalAlignment = Alignment.CenterVertically,
@@ -133,19 +131,15 @@ fun ChatScreen(viewModel: MainViewModel = viewModel(), toMain: () -> Unit = {}) 
                     onClick = {
                         if (input != "") {
                             viewModel.newMessage(
-                                text = input,
-                                receiverId = id,
-                                senderId = me,
-                                time = 1
+                                text = input, receiverId = id, senderId = me, time = 1
                             )
                             input = ""
                         }
-                    }
-                ) {
+                    }) {
                     Icon(
-                        Icons.Default.PlayArrow,
-                        contentDescription = ""
+                        Icons.Default.PlayArrow, contentDescription = ""
                     )
+
                 }
             }
         }
@@ -170,12 +164,11 @@ fun Message(message: Message, viewModel: MainViewModel) {
             .fillMaxWidth()
             .background(Color.Transparent)
             .padding(2.dp),
-        contentAlignment =
-            if (message.senderId == viewModel.me.collectAsState().value.id) {
-                Alignment.CenterEnd
-            } else {
-                Alignment.CenterStart
-            }
+        contentAlignment = if (message.senderId == viewModel.me.collectAsState().value.id) {
+            Alignment.CenterEnd
+        } else {
+            Alignment.CenterStart
+        }
     ) {
         Box(
             modifier = Modifier
@@ -190,8 +183,7 @@ fun Message(message: Message, viewModel: MainViewModel) {
                     text = message.text
                 )
                 Text(
-                    text = messageTime(message.time),
-                    modifier = Modifier.align(Alignment.End)
+                    text = messageTime(message.time), modifier = Modifier.align(Alignment.End)
                 )
             }
         }
