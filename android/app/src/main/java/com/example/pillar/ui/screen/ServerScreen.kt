@@ -1,5 +1,6 @@
 package com.example.pillar.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,16 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.pillar.network.PillarApi
+import kotlinx.coroutines.launch
 
 @Composable
 fun ServerScreen() {
     var ip by remember { mutableStateOf("") }
     var port by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -50,7 +55,12 @@ fun ServerScreen() {
             }
         )
         Button(
-            onClick = {}
+            onClick = {
+                scope.launch {
+                    val result = PillarApi.retrofit.ping()
+                    Log.d("API", result.body().toString())
+                }
+            }
         ) {
             Text("Connect")
         }
