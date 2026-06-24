@@ -7,6 +7,8 @@ import com.example.pillar.data.Chat
 import com.example.pillar.data.Message
 import com.example.pillar.data.User
 import com.example.pillar.data.ChatDict
+import com.example.pillar.network.PillarApi
+import com.example.pillar.ui.theme.PillarTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -87,4 +89,11 @@ class MainViewModel : ViewModel() {
         )
     )
     val me: StateFlow<User> = _me.asStateFlow()
+
+    private val _net = MutableStateFlow("")
+    val net: StateFlow<String> = _net.asStateFlow()
+
+    fun updateUrl(url: String){
+        _net.value = url
+    }
 }

@@ -18,11 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pillar.network.PillarApi
 import kotlinx.coroutines.launch
 
 @Composable
-fun ServerScreen() {
+fun ServerScreen(viewModel: MainViewModel = viewModel(), onClick: () -> Unit = {}) {
     var ip by remember { mutableStateOf("") }
     var port by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
@@ -57,8 +58,19 @@ fun ServerScreen() {
         Button(
             onClick = {
                 scope.launch {
-                    val result = PillarApi.retrofit.ping()
-                    Log.d("API", result.body().toString())
+                    val url = "http://$ip:$port"
+                    try {
+                        val result = PillarApi(url).retrofit.ping()
+                        if (result.isSuccessful) {
+                            Log.d("API", result.body().toString())
+                            viewModel.updateUrl(url)
+                            onClick()
+                        }
+                    }
+                    catch (e: Exception)
+                    {
+                        Log.d("API", "error")
+                    }
                 }
             }
         ) {
