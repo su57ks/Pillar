@@ -11,13 +11,19 @@ import com.example.pillar.ui.screen.ChatScreen
 import com.example.pillar.ui.screen.MainScreen
 import com.example.pillar.ui.screen.MainViewModel
 import com.example.pillar.ui.screen.SettingsScreen
+import com.example.pillar.ui.screen.StartScreen
 
 @Composable
-fun AppNavHost() {
+fun AppNavHost(start: String = "start") {
     val viewModel: MainViewModel = viewModel()
 
     val nav = rememberNavController()
-    NavHost(navController = nav, startDestination = "main") {
+    NavHost(navController = nav, startDestination = start) {
+        composable("start"){
+            StartScreen (
+                continueFun = {nav.navigate("main")}
+            )
+        }
         composable("main"){ MainScreen(
             toSettings = {nav.navigate("settings")},
             toChat = {nav.navigate("chat")},
