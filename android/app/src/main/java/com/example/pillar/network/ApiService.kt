@@ -10,4 +10,7 @@ interface ApiService {
 
     @GET("login/{login}/{password}")
     suspend fun login(@Path("login") login: String, @Path("password") password: String): Response<String>
+
+    @GET("registration/{login}/{password}")
+    suspend fun registration(@Path("login") login: String, @Path("password") password: String): Response<String>
 }

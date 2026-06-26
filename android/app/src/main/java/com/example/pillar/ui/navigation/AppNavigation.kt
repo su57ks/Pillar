@@ -11,6 +11,7 @@ import com.example.pillar.ui.screen.ChatScreen
 import com.example.pillar.ui.screen.LoginScreen
 import com.example.pillar.ui.screen.MainScreen
 import com.example.pillar.ui.screen.MainViewModel
+import com.example.pillar.ui.screen.RegistrationScreen
 import com.example.pillar.ui.screen.ServerScreen
 import com.example.pillar.ui.screen.SettingsScreen
 import com.example.pillar.ui.screen.StartScreen
@@ -35,7 +36,15 @@ fun AppNavHost(start: String = "start") {
         composable("login"){
             LoginScreen(
                 viewModel = viewModel,
-                onClick = {nav.navigate("main")}
+                onClick = {nav.navigate("main")},
+                toRegistration = {nav.navigate("registration")}
+            )
+        }
+        composable("registration"){
+            RegistrationScreen(
+                viewModel = viewModel,
+                onClick = {nav.navigate("main")},
+                toLogin = {nav.navigate("login")}
             )
         }
         composable("main"){ MainScreen(

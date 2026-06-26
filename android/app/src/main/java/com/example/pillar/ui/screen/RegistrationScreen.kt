@@ -28,13 +28,14 @@ import com.example.pillar.network.PillarApi
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(viewModel: MainViewModel = viewModel(),
-                onClick: () -> Unit = {},
-                toRegistration: () -> Unit = {}) {
+fun RegistrationScreen(viewModel: MainViewModel = viewModel(),
+                       onClick: () -> Unit = {},
+                       toLogin: () -> Unit = {}) {
     var login by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    val scope = rememberCoroutineScope()
+    var password1 by remember { mutableStateOf("") }
+    var password2 by remember { mutableStateOf("") }
     val url = viewModel.net.collectAsState().value
+    val scope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,7 +44,7 @@ fun LoginScreen(viewModel: MainViewModel = viewModel(),
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Login"
+            text = "Registration"
         )
         OutlinedTextField(
             value = login,
@@ -55,11 +56,20 @@ fun LoginScreen(viewModel: MainViewModel = viewModel(),
             }
         )
         OutlinedTextField(
-            value = password,
-            onValueChange = {password = it},
+            value = password1,
+            onValueChange = {password1 = it},
             label = {
                 Text(
-                    text = "Password"
+                    text = "Password1"
+                )
+            }
+        )
+        OutlinedTextField(
+            value = password2,
+            onValueChange = {password2 = it},
+            label = {
+                Text(
+                    text = "Password2"
                 )
             }
         )
@@ -68,7 +78,7 @@ fun LoginScreen(viewModel: MainViewModel = viewModel(),
                 scope.launch {
                     Log.d("API", url)
                     try {
-                        val result = PillarApi(url).retrofit.login(login = login, password = password)
+                        val result = PillarApi(url).retrofit.registration(login = login, password = password1)
                         if (result.isSuccessful) {
                             Log.d("API", result.body().toString())
                             if (result?.body() == "true"){
@@ -83,22 +93,19 @@ fun LoginScreen(viewModel: MainViewModel = viewModel(),
                 }
             }
         ) {
-            Text("Login")
+            Text("Register")
         }
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
+        Spacer(modifier = Modifier.height(15.dp))
         Text(
-            text = "Don't have an account? Register",
-            modifier = Modifier
-                .clickable{ toRegistration() },
+            text = "Already have an account? Login",
+            modifier = Modifier.clickable{toLogin()},
             color = Color.Blue
-        )
+            )
     }
 }
 
 @Preview
 @Composable
-private fun LoginScreenPrev() {
-    LoginScreen()
+private fun RegistrationScreenPrev() {
+    RegistrationScreen()
 }

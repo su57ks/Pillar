@@ -11,5 +11,9 @@ def ping(user_time):
 def login(login, password):
     return "true"
 
+@app.route('/registration/<login>/<password>')
+def registration(login, password):
+    return "true"
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=False)
