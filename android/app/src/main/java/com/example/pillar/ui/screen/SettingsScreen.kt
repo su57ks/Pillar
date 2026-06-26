@@ -14,7 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun SettingsScreen(toMain: () -> Unit = {}) {
+fun SettingsScreen(toMain: () -> Unit = {},
+                   toProfile: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -37,6 +38,13 @@ fun SettingsScreen(toMain: () -> Unit = {}) {
             ) {
                 Text(text = "Настройки")
             }
+        }
+        Button(
+            onClick = {
+                toProfile()
+            }
+        ) {
+            Text(text = "Profile")
         }
     }
 }
