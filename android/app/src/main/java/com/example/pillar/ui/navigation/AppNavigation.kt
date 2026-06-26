@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.pillar.ui.screen.ChatScreen
+import com.example.pillar.ui.screen.LoginScreen
 import com.example.pillar.ui.screen.MainScreen
 import com.example.pillar.ui.screen.MainViewModel
 import com.example.pillar.ui.screen.ServerScreen
@@ -27,7 +28,13 @@ fun AppNavHost(start: String = "start") {
         }
         composable("server"){
             ServerScreen(
-                viewModel = viewModel(),
+                viewModel = viewModel,
+                onClick = {nav.navigate("login")}
+            )
+        }
+        composable("login"){
+            LoginScreen(
+                viewModel = viewModel,
                 onClick = {nav.navigate("main")}
             )
         }

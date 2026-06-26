@@ -7,4 +7,7 @@ import retrofit2.http.Path
 interface ApiService {
     @GET("ping/{time}")
     suspend fun ping(@Path("time") time: Int = 1): Response<String>
+
+    @GET("login/{login}/{password}")
+    suspend fun login(@Path("login") login: String, @Path("password") password: String): Response<String>
 }
